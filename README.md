@@ -70,24 +70,26 @@ This is a design document. There is no code yet, other than defined arrays and s
 	- [Schema](#schema)
 		- [Entities](#entities)
 			- [Entity Traits](#entity-traits)
-		- [Many-to-many relationship definitions](#many-to-many-relationship-definitions)
 		- [Attributes](#attributes)
 			- [Attribute Traits](#attribute-traits)
 				- [Traits common to data and code members](#traits-common-to-data-and-code-members)
 				- [Traits specific to data members: attributes, property setters, and fields](#traits-specific-to-data-members-attributes-property-setters-and-fields)
 				- [Traits specific to code members: methods, property getters and setters, and events](#traits-specific-to-code-members-methods-property-getters-and-setters-and-events)
-		- [Unique constraint definitions](#unique-constraint-definitions)
+		- [Data relationships and integrity definitions](#data-relationships-and-integrity-definitions)
+			- [Unique constraint definitions](#unique-constraint-definitions)
+			- [Many-to-many relationship definitions](#many-to-many-relationship-definitions)
 	- [Instanced data](#instanced-data)
 		- [Rows](#rows)
 			- [Row Trait overrides - aka class overrides](#row-trait-overrides---aka-class-overrides)
+			- [Views - filtered scrollable instances of rows](#views---filtered-scrollable-instances-of-rows)
 		- [Cells](#cells)
 			- [Cell Trait overrides - aka class member overrides](#cell-trait-overrides---aka-class-member-overrides)
 				- [Traits overrides common to data and code members](#traits-overrides-common-to-data-and-code-members)
 				- [Traits overrides specific to data members: attributes, property setters, and fields](#traits-overrides-specific-to-data-members-attributes-property-setters-and-fields)
 				- [Traits overrides specific to code members: methods, property getters and setters, and events](#traits-overrides-specific-to-code-members-methods-property-getters-and-setters-and-events)
-		- [Data relationships and integrity](#data-relationships-and-integrity)
-			- [Many-to-Many entity relationship instances](#many-to-many-entity-relationship-instances)
+		- [Data relationships and integrity; instanced](#data-relationships-and-integrity-instanced)
 			- [Unique constraint instances](#unique-constraint-instances)
+			- [Many-to-Many entity relationship instances](#many-to-many-entity-relationship-instances)
 	- [Function definitions by usage example](#function-definitions-by-usage-example)
 - [The rich existing landscape of Bash OOP projects](#the-rich-existing-landscape-of-bash-oop-projects)
 	- [Common lightweight approaches](#common-lightweight-approaches)
@@ -377,19 +379,6 @@ Whether a trait can be set or not, is contextual and ideally self-explanatory. E
 
 - `IsReadOnly` can be always be set to `1` for attributes and/or entity instances. But can't be changed to `0` at any child level if it is set to `1` at a ancestor level.
 
-#### Many-to-many relationship definitions
-
-This group of arrays helps store and enforce many-to-many relationships. (One-to-many are easy, just add some ParentIdx attribute to your entity.)
-
-It's reasonable or at least not too uncommon for the same two entities to have more than one M:M relationship. (Though if that's common then it's a warning of potentially poor design.) Hence the 'RelationshipLabel', which will be undefined most of the time.
-
-~~~bash
-declare -a MtoMdef_UNQ_LeftEntIdx
-declare -a MtoMdef_UNQ_RightEntIdx
-declare -a MtoMdef_UNQ_RelationshipLabel
-declare -A MtoMdef_LookupUNQ
-~~~
-
 #### Attributes
 
 Aka "Members" (e.g. "Properties", "Methods"), "Columns", or "Fields"
@@ -458,7 +447,9 @@ Property setters, getters, callbacks, and events all have predefined interfaces,
 
 `Trait_Attr_Function_PropSetter` will only be populated, if the attribute is a property. The setter function is defined in `Trait_Attr_Function`. Otherwise the `Trait_Attr_Function_PropSetter` sparse array is...sparse. There is no "perfectly clean" way to provide getter and setter functions in bash, without some tradeoff somewhere. (While also enforcing unique member names.) This "redundancy" is arguably the least worst.
 
-#### Unique constraint definitions
+#### Data relationships and integrity definitions
+
+##### Unique constraint definitions
 
 Each entity can have any number of unique constraints (though ideally just one).
 
@@ -466,6 +457,19 @@ Each entity can have any number of unique constraints (though ideally just one).
 declare -a UniqDef_UNQ_EntIdx
 declare -a UniqDef_UNQ_AttrIdxs    ## The attributes involved in the unique constraint.
 declare -A UniqDef_LookupUNQ       ## Composite unique key mapped to UnqDefIdx.
+~~~
+
+##### Many-to-many relationship definitions
+
+This group of arrays helps store and enforce many-to-many relationships. (One-to-many are easy, just add some ParentIdx attribute to your entity.)
+
+It's reasonable or at least not too uncommon for the same two entities to have more than one M:M relationship. (Though if that's common then it's a warning of potentially poor design.) Hence the 'RelationshipLabel', which will be undefined most of the time.
+
+~~~bash
+declare -a MtoMdef_UNQ_LeftEntIdx
+declare -a MtoMdef_UNQ_RightEntIdx
+declare -a MtoMdef_UNQ_RelationshipLabel
+declare -A MtoMdef_LookupUNQ
 ~~~
 
 ### Instanced data
@@ -502,6 +506,17 @@ declare -a Row_EntTraitOverride_Callback_Validate  ## Optionally allows cancelin
 declare -a Row_EntTraitOverride_Event_PreSave      ## Optional FYI, can't be canceled.
 declare -a Row_EntTraitOverride_Event_PostSave     ## An optional FYI
 declare -a Row_EntTraitOverride_Destructor
+~~~
+
+##### Views - filtered scrollable instances of rows
+
+This is a common idiom to RDBMSes. When you create a read/write or read-only view, you get your own virtual "instance" of the result of a query (in this case a whole entity or filter of it), that points back to the underlying data. In this case you also get a "cursor" to navigate through the rows with.
+
+~~~bash
+declare -a View_UNQ_EntIdx
+declare -a View_UNQ_Label      ## Unique name, auto-generated GUID
+declare -A View_LookupUNQ
+declare -a View_CurrentRowIdx  ## Cursor
 ~~~
 
 #### Cells
@@ -556,16 +571,7 @@ declare -a Cell_AttrTraitOverride_Function               ## Name of the function
 declare -a Cell_AttrTraitOverride_Function_PropSetter
 ~~~
 
-#### Data relationships and integrity
-
-##### Many-to-Many entity relationship instances
-
-~~~bash
-declare -a MtoM_UNQ_LeftRowIdx
-declare -a MtoM_UNQ_RightRowIdx
-declare -a MtoM_UNQ_RelationshipLabel  ## A name for this overall relationship, usually undefined.
-declare -A MtoM_LookupUNQ              ## This enforces the unique combination
-~~~
+#### Data relationships and integrity; instanced
 
 ##### Unique constraint instances
 
@@ -574,6 +580,15 @@ declare -a Uniq_UNQ_UniqDefIdx  ## The unique definition Idx
 declare -a Uniq_UNQ_Values      ## The values of the attributes involved in the unique constraint.
 declare -A Uniq_LookupUNQ       ## Composite unique key mapped to UnqIdx.
 declare -a Uniq_RowIdx          ## The specific RowIdx in question.
+~~~
+
+##### Many-to-Many entity relationship instances
+
+~~~bash
+declare -a MtoM_UNQ_LeftRowIdx
+declare -a MtoM_UNQ_RightRowIdx
+declare -a MtoM_UNQ_RelationshipLabel  ## A name for this overall relationship, usually undefined.
+declare -A MtoM_LookupUNQ              ## This enforces the unique combination
 ~~~
 
 ### Function definitions by usage example
