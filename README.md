@@ -33,7 +33,7 @@
 <!-- TOC ignore:true -->
 # TOOBLIN: True Object-Oriented Bash, Lightweight and Idiomatic - with enforced data Normal forms
 
-This is a fleshed-out high-level design document - with some deeper dives, definitions, and discussions where appropriate. There is no code yet, other than defined arrays and syntax definitions.
+This is a design document. There is no code yet, other than defined arrays and syntax definitions.
 
 <!-- TOC ignore:true -->
 ## Table of contents
