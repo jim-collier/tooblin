@@ -79,7 +79,7 @@ This is a design document. There is no code yet, other than defined arrays and s
 		- [Unique constraint definitions](#unique-constraint-definitions)
 	- [Instanced data](#instanced-data)
 		- [Rows](#rows)
-			- [Row Trait overrides - aka class static member overrides](#row-trait-overrides---aka-class-static-member-overrides)
+			- [Row Trait overrides - aka class overrides](#row-trait-overrides---aka-class-overrides)
 		- [Cells](#cells)
 			- [Cell Trait overrides - aka class member overrides](#cell-trait-overrides---aka-class-member-overrides)
 				- [Traits overrides common to data and code members](#traits-overrides-common-to-data-and-code-members)
@@ -358,15 +358,17 @@ Few Traits will typically be populated in practice; most entities will rely on c
 Traits that are normally used to describe attributes (like access, inheritance, read-only), at the entity level, are used to apply to all attributes of all instances, unless it can be and is overidden.
 
 ~~~bash
-declare -a Trait_Ent_Access            ## All attrs: public (default), private, protected
-declare -a Trait_Ent_Inheritance       ## All attrs: virtual (default), final, abstract
-declare -a Trait_Ent_IsReadOnly        ## 1=The entire entity, traits, and instances are read-only
-declare -a Trait_Ent_FriendlyTitle     ## Optional dev helper for UIs (e.g. TUIs).
-declare -a Trait_Ent_ShortDescription  ## Optional dev helper for UIs (e.g. TUIs).
-declare -a Trait_Ent_HelpText          ## Optional dev helper for UIs (e.g. TUIs).
-declare -a Trait_Callback_Validate     ## Optionally allows canceling a save.
-declare -a Trait_Event_PreSave         ## Optional FYI, can't be canceled.
-declare -a Trait_Event_PostSave        ## An optional FYI
+declare -a Trait_Ent_Access             ## All attrs: public (default), private, protected
+declare -a Trait_Ent_Inheritance        ## All attrs: virtual (default), final, abstract
+declare -a Trait_Ent_IsReadOnly         ## 1=The entire entity, traits, and instances are read-only
+declare -a Trait_Ent_FriendlyTitle      ## Optional dev helper for UIs (e.g. TUIs).
+declare -a Trait_Ent_ShortDescription   ## Optional dev helper for UIs (e.g. TUIs).
+declare -a Trait_Ent_HelpText           ## Optional dev helper for UIs (e.g. TUIs).
+declare -a Trait_Ent_Constructor        ## A method with user-defined arguments
+declare -a Trait_Ent_Callback_Validate  ## Optionally allows canceling a save.
+declare -a Trait_Ent_Event_PreSave      ## Optional FYI, can't be canceled.
+declare -a Trait_Ent_Event_PostSave     ## An optional FYI
+declare -a Trait_Ent_Destructor         ## A method with user-defined arguments
 ~~~
 
 Whether a trait can be set or not, is contextual and ideally self-explanatory. Examples:
@@ -379,7 +381,7 @@ Whether a trait can be set or not, is contextual and ideally self-explanatory. E
 
 This group of arrays helps store and enforce many-to-many relationships. (One-to-many are easy, just add some ParentIdx attribute to your entity.)
 
-It's reasonable or at least not too uncommon for the same two entities to have more than one M:M relationship. (Though if that's common then it's a warning of potentially poor design). Hence the 'RelationshipLabel', which will be undefined most of the time.
+It's reasonable or at least not too uncommon for the same two entities to have more than one M:M relationship. (Though if that's common then it's a warning of potentially poor design.) Hence the 'RelationshipLabel', which will be undefined most of the time.
 
 ~~~bash
 declare -a MtoMdef_UNQ_LeftEntIdx
@@ -486,7 +488,7 @@ This may not look like much for a row definition but it gives us the only things
 declare -a Row_EntIdx
 ~~~
 
-##### Row Trait overrides - aka class static member overrides
+##### Row Trait overrides - aka class overrides
 
 ~~~bash
 declare -a Row_EntTraitOverride_UNQ_RowIdx
@@ -495,9 +497,11 @@ declare -A Row_EntTraitOverride_LookupUNQ          ## Composite unique key mappe
 declare -a Row_EntTraitOverride_Access             ## public (default), private, protected
 declare -a Row_EntTraitOverride_Inheritance        ## final, overridden
 declare -a Row_EntTraitOverride_IsReadOnly         ## 1=All cells and traits are read-only
+declare -a Row_EntTraitOverride_Constructor
 declare -a Row_EntTraitOverride_Callback_Validate  ## Optionally allows canceling a save.
 declare -a Row_EntTraitOverride_Event_PreSave      ## Optional FYI, can't be canceled.
 declare -a Row_EntTraitOverride_Event_PostSave     ## An optional FYI
+declare -a Row_EntTraitOverride_Destructor
 ~~~
 
 #### Cells
@@ -522,8 +526,6 @@ declare -a Cell_AttrTraitOverride_IsReadOnly             ## 1=read-only
 
 ###### Traits overrides specific to data members: attributes, property setters, and fields
 
-Validation, callbacks, and events are processed in the order listed here.
-
 ~~~bash
 declare -a Cell_AttrTraitOverride_IsWORM
 declare -a Cell_AttrTraitOverride_Callback_Sanitize
@@ -546,10 +548,6 @@ declare -a Cell_AttrTraitOverride_ShortDescription
 declare -a Cell_AttrTraitOverride_HelpText
 ~~~
 
-Callbacks are invoked to provide the opportunity _change_ data and/or cancel an action before it happens.
-
-Events are invoked to _inform_ the programmer that something happened.
-
 ###### Traits overrides specific to code members: methods, property getters and setters, and events
 
 ~~~bash
@@ -571,8 +569,6 @@ declare -A MtoM_LookupUNQ              ## This enforces the unique combination
 
 ##### Unique constraint instances
 
-This helps enforce the defined unique constraints, in the instanced data.
-
 ~~~bash
 declare -a Uniq_UNQ_UniqDefIdx  ## The unique definition Idx
 declare -a Uniq_UNQ_Values      ## The values of the attributes involved in the unique constraint.
@@ -584,18 +580,21 @@ declare -a Uniq_RowIdx          ## The specific RowIdx in question.
 
 Code examples are WIP:
 
-A user (developer) may wish to create classes, fields, properties, and methods in one or more typical '.class' files. But they can be done dynamically at runtime too, as illustrated below.
+A user (developer) may wish to create classes, fields, properties, and methods in one or more typical `.class` files. But they can be done dynamically at runtime too, as illustrated below.
 
 There are also two equivalent syntaxes to accomplish the same thing:
 
-- Classic OOP `myThing = new  <thing>  <required constructor values>` syntax, and/or
-- Typical "collection" object and database syntax, of `myThing = <thing>s.Add  <required constructor values>`
+- Classic OOP syntax:
+	- `myThing = new  <thing>  <required constructor values>`
+- Typical "collection" object or ORM syntax, of:
+	- `myThing = <thing>s.Add  <required constructor values>`
 
-Use whichever one you're comfortable with, or which best fits the context.
+Use whichever one you're comfortable with, or better yet - which best fits the context, because "Collections" feature heavily in this design.
 
 ~~~bash
-## Create a new class/entity at runtime (even after .class files are loaded)
-## Uning Class-style syntax
+## Create a new class/entity at runtime
+##   (even if you used .class files at startup)
+## Using Class-style syntax:
 local -i class_Machine
 oo  class_Machine=new Class  "Machine"
 
@@ -616,15 +615,16 @@ oo  class_Machine.Fields.Add  "SKU"
 oo  class_Machine.Fields["SKU"].Sanitize = fStripNonNumbers()
 oo  class_Machine.Fields["SKU"].Formatter = fMachine_Field_Formatter()
 	  ## That's how the `.class` file importer would set it up, but
-	  ## it could also be something generic.
+	  ## it could also point to a generic function.
 oo  class_Machine.Fields.Add  Label="SerialNumber"  FriendlyName="S/N#"
 
 ## Create a method
 local -i method_Temp
 oo  method_Temp = new class_Machine.Method  "ShoutMyName"  fMachine_Method_ShoutMyName()
 	  ## Loading functions into memory and assigning them to methods, would ordinarily be handled
-	  ##   by the `.class` parser, but can also be done manually like this.
-	  ## We don't HAVE to assign a return value, we can just blindly call 'class_Machine.Methods.Add'.
+	  ##   by the `.class` parser at script startup, but can also be done manually like this.
+	  ## We don't HAVE to assign a return value, we could just blindly call
+	  ## 'class_Machine.Methods.Add' with constructor arguments.
 
 ## Invoke fMachine_Method_ShoutMyName() via either one of:
 oo  Classes["Machine"].ShoutMyName
@@ -703,10 +703,7 @@ oo  objMachine1 = nothing
 
 ## To-do
 
-- 20260429-150738: Rationalize references to, and discussions of: entities/attributes/fields, rows/columns/cells, and classes/objects/members.
-
-	- Prefer: entity/attribute/cell. And annotations rather than properties.
-
 ## History
 
 - 2026-04-27 JC: Created.
+- 2026-05-01 JC: Github project created.
