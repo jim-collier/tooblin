@@ -58,6 +58,7 @@ This is a design document. There is no code yet, other than defined arrays and s
 	- [Index arrays](#index-arrays)
 	- [UNQ: Unique Constraints - defines logical row and object uniqueness](#unq-unique-constraints---defines-logical-row-and-object-uniqueness)
 - [How the TOOBLIN magic is done](#how-the-tooblin-magic-is-done)
+	- [OOP syntax](#oop-syntax)
 	- [Unique constraints and fast lookups](#unique-constraints-and-fast-lookups)
 	- [Real object variables](#real-object-variables)
 	- [OOP syntax sugar goodness](#oop-syntax-sugar-goodness)
@@ -85,8 +86,8 @@ This is a design document. There is no code yet, other than defined arrays and s
 				- [Traits overrides specific to data members: attributes, property setters, and fields](#traits-overrides-specific-to-data-members-attributes-property-setters-and-fields)
 				- [Traits overrides specific to code members: methods, property getters and setters, and events](#traits-overrides-specific-to-code-members-methods-property-getters-and-setters-and-events)
 		- [Data relationships and integrity](#data-relationships-and-integrity)
-			- [Unique constraint instances](#unique-constraint-instances)
 			- [Many-to-Many entity relationship instances](#many-to-many-entity-relationship-instances)
+			- [Unique constraint instances](#unique-constraint-instances)
 	- [Function definitions by usage example](#function-definitions-by-usage-example)
 - [The rich existing landscape of Bash OOP projects](#the-rich-existing-landscape-of-bash-oop-projects)
 	- [Common lightweight approaches](#common-lightweight-approaches)
@@ -198,9 +199,9 @@ Bash associative arrays use a hashtable in the under the hood, and store key=val
 
 ### Index arrays
 
-Regular index arrays are accessed via an integer index, e.g. `myArray[5]="Bob"`. This number is very important in TOOBLIN, and used everywhere under the hood
+Regular index arrays are accessed via an integer index, e.g. `myArray[5]="Bob"`. This number is very important in TOOBLIN, and used everywhere under the hood.
 
-It's referenced with the suffix `Idx` under the hood.
+It's referenced with the suffix `Idx` in the library, but treated as a first-class object variable in the runtime syntax.
 
 ### UNQ: Unique Constraints - defines logical row and object uniqueness
 
@@ -222,9 +223,13 @@ A `UNQ` is usually one of:
 
 ## How the TOOBLIN magic is done
 
-- TOOBLIN doesn't directly create data arrays from `.class` definitions, as most Bash OOP libraries do. Instead, it manages it's own efficient set of arrays under the hood, that are accessible through a thin and fast indirection layer. That array index is treated as an "object" by the syntax.
+### OOP syntax
 
-- Class member code is loaded into memory as named Bash functions, but also run through a thin and fast indirection layer. Not just to provide syntax sugar, but also to maintain data consistency and strict OOP contracts.
+- Classes are defined in traditional OOP style. They are structured like traditional class files - with OOP decorators and attributes - but the executable portions are pure Bash.
+
+- Runtime syntax is prefaced with `oo `. This adds a small cost of a thin layer of indirection and parsing, for the huge payoff of pure OOP syntax sugar. But as described in the section above about leaky abstractions, the library can be run with no parsing or extra indirection layers at all (side-by-side with syntax sugar). You might choose to do so because you need the speed in critical code sections, or maybe you just like torturing yourself with typical convoluted native Bash syntax that attempts to provide OOP-like features.
+
+- Member code is loaded into memory as uniquely named Bash functions, but also run through a very thin and fast native layer. Not just so that syntax sugar can be provided, but also to maintain data consistency and strict OOP contracts even if you skip the extra syntax layer.
 
 ### Unique constraints and fast lookups
 
@@ -278,11 +283,15 @@ There are only a few main conceptual sets of arrays (or SQL tables or JSON objec
 		- Traits (fields and members)
 	- Attributes (aka _class members_)
 		- Traits (member metadata)
+	- Many-to-many entity relationship definitions
+	- Unique constraint definitions
 - Data:
 	- Rows (aka _instanced objects_)
 		- Trait overrides
 	- Cells (aka _member instances_)
 		- Trait overrides
+	- Many-to-Many entity relationship instances
+	- Unique constraint instances
 
 There's also a set of arrays dedicated to storing and enforcing M:M entity relationships.
 
@@ -551,6 +560,15 @@ declare -a Cell_AttrTraitOverride_Function_PropSetter
 
 #### Data relationships and integrity
 
+##### Many-to-Many entity relationship instances
+
+~~~bash
+declare -a MtoM_UNQ_LeftRowIdx
+declare -a MtoM_UNQ_RightRowIdx
+declare -a MtoM_UNQ_RelationshipLabel  ## A name for this overall relationship, usually undefined.
+declare -A MtoM_LookupUNQ              ## This enforces the unique combination
+~~~
+
 ##### Unique constraint instances
 
 This helps enforce the defined unique constraints, in the instanced data.
@@ -560,15 +578,6 @@ declare -a Uniq_UNQ_UniqDefIdx  ## The unique definition Idx
 declare -a Uniq_UNQ_Values      ## The values of the attributes involved in the unique constraint.
 declare -A Uniq_LookupUNQ       ## Composite unique key mapped to UnqIdx.
 declare -a Uniq_RowIdx          ## The specific RowIdx in question.
-~~~
-
-##### Many-to-Many entity relationship instances
-
-~~~bash
-declare -a MtoM_UNQ_LeftRowIdx
-declare -a MtoM_UNQ_RightRowIdx
-declare -a MtoM_UNQ_RelationshipLabel  ## A name for this overall relationship, usually undefined.
-declare -A MtoM_LookupUNQ              ## This enforces the unique combination
 ~~~
 
 ### Function definitions by usage example
