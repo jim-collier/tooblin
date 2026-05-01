@@ -591,57 +591,67 @@ There are also two equivalent syntaxes to accomplish the same thing:
 
 Use whichever one you're comfortable with, or better yet - which best fits the context, because "Collections" feature heavily in this design.
 
+There's are a few "convention over configuration" standards that must be observed, just to speed up the syntax sugar parsing, and keep thing more clear:
+
+- Object instances (which you'll notice are actually bash integer variables), _always_ start with lower-case.
+
+- Class and member names, whether predefined or custom, _always_ start with upper-case.
+
+- Function "pointers" _always_ end with `()`
+
+For `=` assignment, it doesn't matter if there's a space or not. If it feels more Bash-native to not use spaces, go for it. But if it helps remind you that the optional syntax sugar layer is _not_ native Bash, then adding spaces with the `=` assignment might help make that clear.
+
 ~~~bash
 ## Create a new class/entity at runtime
 ##   (even if you used .class files at startup)
 ## Using Class-style syntax:
 local -i class_Machine
-oo  class_Machine=new Class  "Machine"
+oop  class_Machine=new Class  "Machine"
 
 ## Set one of the standard predefined properties
-oo  class_Machine.FriendlyName="Generic machines"
+oop  class_Machine.FriendlyName="Generic machines"
 
 ## Add a custom class-level field at runtime
 local -i field_FightSong
-o  field_FightSong = new class_Machine.Field  Label="FightSong"  Value="We are machines and we will dominate."
+oop  field_FightSong = new class_Machine.Field  Label="FightSong"  Value="We are machines and we will dominate."
 
 ## Set optional properties to really lock the field down, via standard properties
-oo  field_FightSong.IsReadOnly=1  ## Can no longer be written to, only read.
-oo  field_FightSong.IsStatic=1    ## Class-level, no instance needed to access.
-oo  field_FightSong.IsFinal=1     ## Can't be overridden by subclasses.
+oop  field_FightSong.IsReadOnly=1  ## Can no longer be written to, only read.
+oop  field_FightSong.IsStatic=1    ## Class-level, no instance needed to access.
+oop  field_FightSong.IsFinal=1     ## Can't be overridden by subclasses.
 
 ## Create attributes ("collection"-style syntax while ignoring return values)
-oo  class_Machine.Fields.Add  "SKU"
-oo  class_Machine.Fields["SKU"].Sanitize = fStripNonNumbers()
-oo  class_Machine.Fields["SKU"].Formatter = fMachine_Field_Formatter()
+oop  class_Machine.Fields.Add  "SKU"
+oop  class_Machine.Fields["SKU"].Sanitize = fStripNonNumbers()
+oop  class_Machine.Fields["SKU"].Formatter = fMachine_Field_Formatter()
 	  ## That's how the `.class` file importer would set it up, but
 	  ## it could also point to a generic function.
-oo  class_Machine.Fields.Add  Label="SerialNumber"  FriendlyName="S/N#"
+oop  class_Machine.Fields.Add  Label="SerialNumber"  FriendlyName="S/N#"
 
 ## Create a method
 local -i method_Temp
-oo  method_Temp = new class_Machine.Method  "ShoutMyName"  fMachine_Method_ShoutMyName()
+oop  method_Temp = new class_Machine.Method  "ShoutMyName"  fMachine_Method_ShoutMyName()
 	  ## Loading functions into memory and assigning them to methods, would ordinarily be handled
 	  ##   by the `.class` parser at script startup, but can also be done manually like this.
 	  ## We don't HAVE to assign a return value, we could just blindly call
 	  ## 'class_Machine.Methods.Add' with constructor arguments.
 
 ## Invoke fMachine_Method_ShoutMyName() via either one of:
-oo  Classes["Machine"].ShoutMyName
-oo  class_Machine.ShoutMyName
-oo  method_Temp
+oop  Classes["Machine"].ShoutMyName
+oop  class_Machine.ShoutMyName
+oop  method_Temp
 
 ## Create an instance of "Machine"
 local -i objMachine1
-oo  objMachine1=new class_Machine
+oop  objMachine1=new class_Machine
 
 ## Set and get some data
-oo  objMachine1.SKU="a123456789z"
-oo  objMachine1.SerialNumber="0045678900"
-oo  objMachine1.SerialNumber.IsReadOnly=1
+oop  objMachine1.SKU="a123456789z"
+oop  objMachine1.SerialNumber="0045678900"
+oop  objMachine1.SerialNumber.IsReadOnly=1
 
 ## Garbage-collect the object
-oo  objMachine1 = nothing
+oop  objMachine1 = nothing
 ~~~
 
 ## The rich existing landscape of Bash OOP projects
