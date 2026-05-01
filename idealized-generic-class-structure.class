@@ -1,0 +1,97 @@
+// Idealized class syntax
+// Inspired mostly by C#, with some Java and Kotlin
+
+// === INTERFACE ===
+// All members public & abstract by default.
+interface Drawable {
+	void draw();
+	int area();
+}
+
+// === ABSTRACT BASE CLASS ===
+abstract class Shape implements Drawable {
+
+	// --- FIELDS ---
+	private    string    name;                   // private: only this class
+	protected  int       id;                     // protected: this class + subclasses
+	public     bool      visible = true;         // public field (prefer properties)
+	private    readonly  DateTime createdAt;     // immutable after construction
+	public     const     float PI = 3.14159;     // compile-time constant
+	private    static    int instanceCount = 0;  // shared across all instances
+
+	// --- PROPERTIES ---
+	// Auto-property: public read, private write.
+	public int Id { get; private set; }
+
+	// Property with custom logic.
+	public string Name {
+		get => name;
+		set {
+			if (value == null) throw ArgumentError("name required");
+			name = value;
+		}
+	}
+
+	// Read-only computed property.
+	public bool IsNamed => name != null && name.length > 0;
+
+	// --- CONSTRUCTORS ---
+	public Shape(string name) {
+		this.name      = name;
+		this.createdAt = DateTime.now();
+		this.Id        = ++instanceCount;
+	}
+
+	// Secondary constructor delegates to primary.
+	public Shape() : this("unnamed") { }
+
+	// --- METHODS ---
+	// Abstract: subclasses MUST implement.
+	public abstract int area();
+
+	// Virtual: subclasses MAY override.
+	public virtual void draw() {
+		print("Drawing " + name);
+	}
+
+	// Non-virtual public method (cannot be overridden).
+	public string describe() => name + " (id=" + Id + ")";
+
+	// Protected helper, available to subclasses.
+	protected void log(string msg) {
+		print("[" + name + "] " + msg);
+	}
+
+	// Private helper, only this class.
+	private bool validate() => name != null;
+
+	// Static: called as Shape.totalCount(), no instance needed.
+	public static int totalCount() => instanceCount;
+}
+
+// === CONCRETE SUBCLASS ===
+class Circle extends Shape {
+
+	private float radius;
+
+	// Constructor chains to base via `super(...)`.
+	public Circle(string name, float radius) : super(name) {
+		this.radius = radius;
+	}
+
+	// `override` is REQUIRED — prevents accidental overrides.
+	public override int area() {
+		return (int)(PI * radius * radius);
+	}
+
+	public override void draw() {
+		super.draw();              // call base implementation
+		log("radius=" + radius);   // inherited protected helper
+	}
+}
+
+// === SEALED LEAF CLASS ===
+// `final` class cannot be subclassed further.
+final class UnitCircle extends Circle {
+	public UnitCircle() : super("unit", 1.0) { }
+}
