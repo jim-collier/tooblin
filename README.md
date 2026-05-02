@@ -33,7 +33,7 @@
 <!-- TOC ignore:true -->
 # TOOBLIN: True Object-Oriented Bash, Lightweight and Idiomatic - with enforced data Normal forms
 
-This is a design document. There is no code yet, other than defined arrays and syntax definitions.
+This is a design document. There is not much code yet, other than defined arrays and syntax "definitions by example".
 
 <!-- TOC ignore:true -->
 ## Table of contents
@@ -41,6 +41,9 @@ This is a design document. There is no code yet, other than defined arrays and s
 <!-- TOC -->
 
 - [Introduction](#introduction)
+- [The problem space](#the-problem-space)
+- [Who is this for, and why?](#who-is-this-for-and-why)
+- [Who is this isn't for](#who-is-this-isnt-for)
 - [TOOBLIN goals](#tooblin-goals)
 	- [Present boring, bog-standard OOP syntax sugar that is immediately usable by any OOP programmer](#present-boring-bog-standard-oop-syntax-sugar-that-is-immediately-usable-by-any-oop-programmer)
 	- [Provide strong OOP contracts with definitionally true and 100% complete "OOP"](#provide-strong-oop-contracts-with-definitionally-true-and-100%25-complete-oop)
@@ -53,7 +56,9 @@ This is a design document. There is no code yet, other than defined arrays and s
 	- [Enforcement of five data Normal Forms with no extra work](#enforcement-of-five-data-normal-forms-with-no-extra-work)
 	- [Back-end storage agnostic](#back-end-storage-agnostic)
 	- [Serializable datasets and object states](#serializable-datasets-and-object-states)
+	- [Highly extensible, for plug-ins and wrappers such as](#highly-extensible-for-plug-ins-and-wrappers-such-as)
 - [Reference](#reference)
+	- [OO and RDBMS are the same thing - separated in time, technologies and tools, targeted problems, and skillsets](#oo-and-rdbms-are-the-same-thing---separated-in-time-technologies-and-tools-targeted-problems-and-skillsets)
 	- [Associative arrays](#associative-arrays)
 	- [Index arrays](#index-arrays)
 	- [UNQ: Unique Constraints - defines logical row and object uniqueness](#unq-unique-constraints---defines-logical-row-and-object-uniqueness)
@@ -101,13 +106,101 @@ This is a design document. There is no code yet, other than defined arrays and s
 
 ## Introduction
 
-There are potentially countless repositories on github that allow the simulation of OOP in Bash. Many rely on a couple of useful idioms, and some fundamental truths about OOP:
+There are potentially countless repositories on github that allow the simulation of OOP in Bash. It's obviously a significant interest among many.
 
-- OOP support in all modern languages provide "syntactic sugar" on top of boring, flat, and sometimes hideously ugly data structures under the hood. The translation between the pretty programming models, and the inner guts, is managed by a runtime library, boiled away by a low-level optimizing static compiler, or somewhere in-between. With procedural scripting languages like Bash, you can often accomplish some of the same things - but at incredible complexity and performance cost.
-
-- Bash OOP libraries and frameworks attempt to meet somewhere in the middle: add some OOP syntactic sugar/abstraction/safety, and hide the complexity of doing so - meanwhile minimizing the performance hit as much as possible. All OOP projects aim for some balance in-between those two unavoidable extremes.
+Many projects rely on some similar idioms, some of them discussed toward the bottom of this document.
 
 The section [The rich existing landscape of Bash OOP projects](#the-rich-existing-landscape-of-bash-oop-projects) below, gives an overview of some common approaches.
+
+This project aims to find a better balance between "syntactic sugar" and "native Bash performance", by borrowing what already works, and incrementally improving on - or occasionally reinventing if all else fails - what doesn't.
+
+It aims to accomplish pure OOP syntax and contractual integrity, with a thinner and faster layer over Bash than the others (and with alternative direct access to 100% Bash that still maintains OOP integrity) - in part by trying to dumb things down to their simplest necessary forms.
+
+This latest iteration even includes support for Prototypal Inheritance, direct object inheritance, and creating objects out of nothing without a class.
+
+- Which should make JS programmers happy.
+
+- But to keep the OOP purists also happy, this feature can be disabled at the namespace level.
+- Although namespaces have yet to be defined.
+
+- Also, just as JavaScript "fakes" classes in ES6 with syntactic sugar over prototypal inheritance (but with many leaks), this will "fake" prototypal inheritance by secretly creating a prototype class in the background - which is at least more faithful to prototypal inheritance, than ES6 is to classes.
+
+## The problem space
+
+A fundamental truth about Object-Oriented Programming languages (and all programming languages):
+
+- OOP in all modern languages is just "syntactic sugar" on top of boring, flat, and sometimes hideously ugly data structures underneath. The translation between the elegant programming paradigms, and the inner guts, is either managed by a runtime library, or boiled away by a low-level optimizing static compiler - or somewhere in-between (as with Java and .NET).
+
+- Bash is Touring-complete. By definition, it could be used to simulate any computer, compiler, and/or programming language. Including, with perfect fidelity, any OOP language.
+
+The challenge with Bash, is finding the right balance between the fidelity of the simulation, and performance on present-day hardware.
+
+Most OOP-for-Bash implementations, in this authors estimation, get the balance woefully skewed one way or the other. Either favoring:
+
+- A more native, unwrapped Bash approach that requires a steep learning curve to be able to use a fully custom syntax, as required by a potentially otherwise useful OOP engine; and/or,
+
+- Full-blown OOP syntax that programmers are immediately comfortable with - but which require complicated setup, and steep processing overhead where everything is wrapped and parsed to death. And in many cases, they seem to be more academic exercises "just because", rather than fully-featured practical solutions. (And the pot should be very careful calling things colors, on this point.)
+
+- Projects originally written for - and that still support - grossly outdated Bash versions (e.g. < 4.3), that invariable seem to involve an utterly inscrutable and practically unusable custom syntax to use. Those are the worst. (As this project may also be deemed ten years from now.)
+
+The only real solution to this problem is - if you want a remotely viable Bash OOP solution and you're running macOS Darwin or some versions of BSD: Get GNU Bash 5+. There's just no way around it. (This may seem like quaint advice in ten years with Bash v6 or 7.)
+
+However you slice it, the main problem with Bash-OOP solutions that introduce their own custom syntax - often in an effort to eliminate any syntax parsing layer - is this: __Why bother learning a whole new one-off syntax for _Bash_ scripting, when you might as well put that effort into learning the latest/greatest hot new "real" language__?
+
+And furthermore: for projects that marry the _worst_ of both worlds: A custom one-off syntax that must be learned, _and_ heavy syntax parsing: Just...why? (Usually because they were written during, and for, Bash < v4.)
+
+The fundamental balance of of any Bash OOP library or framework, necessarily boils down to finding the right balance between:
+
+1. Not requiring users to learn a new syntax.
+
+- Just because an OOP Bash framework is "100% native Bash", doesn't mean it doesn't have it's own difficult custom syntax to learn and master. It necessarily does.
+
+So for a framework that claims to offer OOP, a familiar OOP syntax is the easiest hurdle to overcome, for users who already know they want OOP. And practically the most important requirement.
+
+1. Reducing parsing layers and other performance overhead as much as possible.
+
+- This can look like:
+
+- Being rigid about syntax rules, not being _too_ flexible, and thus being able to be hyper-efficient with parsing. And/or,
+- Offering an alternate access path to all the same OOP goodness, for performance-critical sections, via 100% non-wrapped native Bash syntax. (That is difficult to learn, read, and understand.)
+
+This project aims to accomplish both: Pure OOP-syntax (with rigid rules to ease parsing load), and offering parallel alternate Bash-only paths for performance-critical sections.
+
+But as already suggested, offering _only_ a fully custom native Bash syntax - makes any OOP-for-Bash basically DOA.
+
+## Who is this for, and why?
+
+This is mainly targeted at the intersection of:
+
+- Terminal users and developers who make heavy use of Bash for quick but large one-off tasks that too often grow into permanent tools,
+
+- who may need to update the script ten to twenty years into the future, and don't want to be bothered with getting the right tooling and compiler versions set up for a compiled program,
+
+- who are also current or former OOP programmers,
+
+- who deal often with large amounts of structured data (e.g. filesystems, file metadata such as EXIF, log files, etc.)
+
+- for problems that need quite a bit more complex logic or manipulation than `grep`, `sed`, and/or `awk` can accomplish in bulk in an easy-to-accomplish manner, and
+
+- who find that they often spend much of their time writing (or copying) boilerplate script to accomplish the same kinds of heavy data-oriented tasks over and over again.
+
+- and who need strong data relationship integrity enforcement with no extra effort, and/or strong data typing.
+
+## Who is this isn't for
+
+- Programmers who need high-performance, compiled native machine code.
+
+- Programmers who get "shell script"ey things done with compiled programs rather than shell script
+
+- Bash purists
+
+- OOP purists
+
+- RDBMS purists
+
+- Purists
+
+- People who don't like adventure.
 
 ## TOOBLIN goals
 
@@ -153,7 +246,7 @@ Other than that, most of the parsing heavy-lifting is done when the library is l
 
 All class methods, functions, fields, etc. are loaded into memory and given unique names. Class and member definitions can be in-line - in a `HEREDOC` for example - or in one or more `.class` files.
 
-After that, the only parsing done is to provide sytax sugar. But that can also by sidestepped if/when necessary, with...
+After that, the only parsing done is to provide syntax sugar. But that can also by sidestepped if/when necessary, with...
 
 ### Leaky abstractions as a feature not a bug
 
@@ -189,15 +282,42 @@ This is literally the same idea behind C++'s leaky abstractions of C, and both b
 
 ### Serializable datasets and object states
 
+### Highly extensible, for plug-ins and wrappers such as
+
+- Arbitrary alternate back-ends such real SQL servers
+
+- Automatic ORM wrapping of existing SQL databases
+
+- Filesystem scanner and attribute mapping
+
+- EXIF/IPTC/XMP, ID3, and/or video metadata scanner/wrapper
+
 ## Reference
+
+### OO and RDBMS are the same thing - separated in time, technologies and tools, targeted problems, and skillsets
+
+This fundamental truth forms the core philosophy of TOOBLIN. Consider:
+
+| OOP term | RDBMS term | Generic term | Comments
+| :-- | :-- | :-- | :--
+| Class | Table schema | Entity
+| Class member | Column | Attribute | For OOP, especially Fields and Properties
+| Object | Row, Record | Instance
+| Object member | Row&Column, Field | Cell
+| Callback, Event | Trigger, Listener
+| Method | Stored Procedure
+
+As of 2026 (and for a long time prior), the concept of RDBMS has been more about large scale, well-structured data storage, management, retrieval, and consistency. OOP has been more about programming and to some extent UIs, independent of permanent storage. But that's just higher-order comparisons.
+
+At their core meaning, the terms and root concepts are essentially identical. As such, the technology-specific terms are used largely interchangeably in this document.
 
 ### Associative arrays
 
-Bash associative arrays use a hashtable in the under the hood, and store key=value pairs. It comes with two attributes important to TOOBLIN:
+Bash associative arrays are very efficient. They use a hashtable in the under the hood, and store key=value pairs mapped to memory locations. It comes with two attributes important to TOOBLIN:
 
 - For any given array, the key is always, by definition, unique. (In the same meaning that a specific index value is always unique for a given indexed array.)
 
-- Retrieval of a value by key is very fast, in O(1) time.
+- Retrieval of a value by key is very fast, in roughly O(1) time regardless of size. (Inserts get slower as data grows though, but still done in machine code, not script.)
 
 ### Index arrays
 
@@ -241,13 +361,13 @@ TOOBLIN uses associative arrays to:
 
 - Provide fast relationship mapping and lookups.
 
-	These arrays, in TOOBLIN, usually have the word `UNQ` in them.
+These arrays, in TOOBLIN, usually have the word `UNQ` in them.
 
 ### Real object variables
 
 In any OOP language, "object" references are just thinly-wrapped pointers or indexes.
 
-To the user of TOOBLIN, an "object variable" is just an integer holding a reference to a unique `rowIdx`, which identifies both a class, and an instance of it. (Aka an entity and specific row.) But in true OOP-fashion, a thin layer of sytactic sugar lets us fully believe it's a real boy. I mean object variable.
+To the user of TOOBLIN, an "object variable" is just an integer holding a reference to a unique `rowIdx`, which identifies both a class, and an instance of it. (Aka an entity and specific row.) But in true OOP-fashion, a thin layer of syntactic sugar lets us fully believe it's a real boy. I mean object variable.
 
 ### OOP syntax sugar goodness
 
@@ -281,19 +401,19 @@ But being "sparse", the indexes definitionally do not need to be contiguous. As 
 There are only a few main conceptual sets of arrays (or SQL tables or JSON object arrays) for everything:
 
 - Schema:
-	- Entities (aka _classes_)
-		- Traits (fields and members)
-	- Attributes (aka _class members_)
-		- Traits (member metadata)
-	- Many-to-many entity relationship definitions
-	- Unique constraint definitions
+- Entities (aka _classes_)
+- Traits (fields and members)
+- Attributes (aka _class members_)
+- Traits (member metadata)
+- Many-to-many entity relationship definitions
+- Unique constraint definitions
 - Data:
-	- Rows (aka _instanced objects_)
-		- Trait overrides
-	- Cells (aka _member instances_)
-		- Trait overrides
-	- Many-to-Many entity relationship instances
-	- Unique constraint instances
+- Rows (aka _instanced objects_)
+- Trait overrides
+- Cells (aka _member instances_)
+- Trait overrides
+- Many-to-Many entity relationship instances
+- Unique constraint instances
 
 There's also a set of arrays dedicated to storing and enforcing M:M entity relationships.
 
@@ -309,34 +429,34 @@ Most arrays are index arrays. Arrays with the same prefix should be considered "
 
 - __`*_UNQ*`__
 
-	One or more parts of what usually makes a unique schema record (or object). Examples from below:
+One or more parts of what usually makes a unique schema record (or object). Examples from below:
 
-	- `Attr_UNQ_EntIdx` + `Attr_UNQ_Label`
+- `Attr_UNQ_EntIdx` + `Attr_UNQ_Label`
 
-		An Entity Idx _and_ an Attribute Label, together, define a unique Attribute.
+An Entity Idx _and_ an Attribute Label, together, define a unique Attribute.
 
-	- `Cell_UNQ_RowIdx` + `Cell_UNQ_AttrIdx`
+- `Cell_UNQ_RowIdx` + `Cell_UNQ_AttrIdx`
 
-		A Row Idx _and_ an Attribute Idx, together, define a unique Cell.
+A Row Idx _and_ an Attribute Idx, together, define a unique Cell.
 
 - `*_UNQ_Label`
 
-	This subset of the `UNQ` definition above, holds a developer-meaningful (but not necessarily "user-friendly") string value that is defined as being unique in its context. Real-world examples:
+This subset of the `UNQ` definition above, holds a developer-meaningful (but not necessarily "user-friendly") string value that is defined as being unique in its context. Real-world examples:
 
-	- Entity `Ent_UNQ_Label="Files"`
+- Entity `Ent_UNQ_Label="Files"`
 
-	- Attributes:
+- Attributes:
 
-		- `Attr_UNQ_Label="FileName"`
-		- `Attr_UNQ_Label="MTime"` (unique entity Idx and Label value)
+- `Attr_UNQ_Label="FileName"`
+- `Attr_UNQ_Label="MTime"` (unique entity Idx and Label value)
 
 - __`*_LookupUNQ`__
 
-	These are Associative arrays, used to:
+These are Associative arrays, used to:
 
-	- Enforce uniqueness at the schema level. Associative arrays are by definition unique. In this case the "key" is usually a composite value, for example for Attributes: `"${EntIdx}.${Label}"`
+- Enforce uniqueness at the schema level. Associative arrays are by definition unique. In this case the "key" is usually a composite value, for example for Attributes: `"${EntIdx}.${Label}"`
 
-	- Facilitate fast lookups to obtain an index value for everything else.
+- Facilitate fast lookups to obtain an index value for everything else.
 
 ### Schema
 
@@ -345,11 +465,17 @@ Most arrays are index arrays. Arrays with the same prefix should be considered "
 Aka "Classes", "Tables".
 
 ~~~bash
-declare -a Ent_UNQ_ParentEntIdx    ## Parent entity, if inheriting another class.
-declare -a Ent_UNQ_Label           ## Human-meaningful entity name, unique among same parent.
-declare -A Ent_LookupUNQ           ## Composite unique key mapped to EntIdx.
-declare -a Ent_RefCount            ## Keeps count of instantiated rows/objects, for garbage collection.
+declare -a Ent_UNQ_ParentEntIdx ## Parent entity, if inheriting another class.
+declare -a Ent_UNQ_Label ## Human-meaningful entity name, unique among same parent.
+declare -A Ent_LookupUNQ ## Composite unique key mapped to EntIdx.
+declare -a Ent_RefCount ## Keeps count of instantiated rows/objects, for garbage collection.
 ~~~
+
+When the TOOBLIN library loads, it automatically creates an "Entity 0", that:
+
+- All other entities inherit unless told otherwise, and
+
+- Helps facilitate optional JS-style prototypal inheritance, where `EntIdx=0` serves as the original object prototype.
 
 ##### Entity Traits
 
@@ -357,20 +483,20 @@ Entity Traits are sparse index arrays that share the same indexes as Ent_*[] arr
 
 Few Traits will typically be populated in practice; most entities will rely on coded defaults.
 
-Traits that are normally used to describe attributes (like access, inheritance, read-only), at the entity level, are used to apply to all attributes of all instances, unless it can be and is overidden.
+Traits that are normally used to describe attributes (like access, inheritance, read-only), at the entity level, are used to apply to all attributes of all instances, unless it can be and is overridden.
 
 ~~~bash
-declare -a Trait_Ent_Access             ## All attrs: public (default), private, protected
-declare -a Trait_Ent_Inheritance        ## All attrs: virtual (default), final, abstract
-declare -a Trait_Ent_IsReadOnly         ## 1=The entire entity, traits, and instances are read-only
-declare -a Trait_Ent_FriendlyTitle      ## Optional dev helper for UIs (e.g. TUIs).
-declare -a Trait_Ent_ShortDescription   ## Optional dev helper for UIs (e.g. TUIs).
-declare -a Trait_Ent_HelpText           ## Optional dev helper for UIs (e.g. TUIs).
-declare -a Trait_Ent_Constructor        ## A method with user-defined arguments
-declare -a Trait_Ent_Callback_Validate  ## Optionally allows canceling a save.
-declare -a Trait_Ent_Event_PreSave      ## Optional FYI, can't be canceled.
-declare -a Trait_Ent_Event_PostSave     ## An optional FYI
-declare -a Trait_Ent_Destructor         ## A method with user-defined arguments
+declare -a Trait_Ent_Access ## All attrs: public (default), private, protected
+declare -a Trait_Ent_Inheritance ## All attrs: virtual (default), final, abstract
+declare -a Trait_Ent_IsReadOnly ## 1=The entire entity, traits, and instances are read-only
+declare -a Trait_Ent_FriendlyTitle ## Optional dev helper for UIs (e.g. TUIs).
+declare -a Trait_Ent_ShortDescription ## Optional dev helper for UIs (e.g. TUIs).
+declare -a Trait_Ent_HelpText ## Optional dev helper for UIs (e.g. TUIs).
+declare -a Trait_Ent_Constructor ## A method with user-defined arguments
+declare -a Trait_Ent_Callback_Validate ## Optionally allows canceling a save.
+declare -a Trait_Ent_Event_PreSave ## Optional FYI, can't be canceled.
+declare -a Trait_Ent_Event_PostSave ## An optional FYI
+declare -a Trait_Ent_Destructor ## A method with user-defined arguments
 ~~~
 
 Whether a trait can be set or not, is contextual and ideally self-explanatory. Examples:
@@ -385,8 +511,8 @@ Aka "Members" (e.g. "Properties", "Methods"), "Columns", or "Fields"
 
 ~~~bash
 declare -a Attr_UNQ_EntIdx
-declare -a Attr_UNQ_Label   ## Developer-friendly name of attribute, unique to entity
-declare -A Attr_LookupUNQ   ## Composite unique key mapped to AttrIdx.
+declare -a Attr_UNQ_Label ## Developer-friendly name of attribute, unique to entity
+declare -A Attr_LookupUNQ ## Composite unique key mapped to AttrIdx.
 ~~~
 
 ##### Attribute Traits
@@ -396,11 +522,11 @@ Attribute Traits are sparse index arrays that share the same indexes as Attr*[] 
 ###### Traits common to data and code members
 
 ~~~bash
-declare -a Trait_Attr_MemberType             ## 'data' or 'code'
-declare -a Trait_Attr_Access                 ## public (default), private, protected
-declare -a Trait_Attr_Inheritance            ## virtual (default), final, abstract
-declare -a Trait_Attr_IsStatic               ## 1=Only available at class level
-declare -a Trait_Attr_IsReadOnly             ## 1=The attr is read-only (default for methods)
+declare -a Trait_Attr_MemberType ## 'data' or 'code'
+declare -a Trait_Attr_Access ## public (default), private, protected
+declare -a Trait_Attr_Inheritance ## virtual (default), final, abstract
+declare -a Trait_Attr_IsStatic ## 1=Only available at class level
+declare -a Trait_Attr_IsReadOnly ## 1=The attr is read-only (default for methods)
 ~~~
 
 ###### Traits specific to data members: attributes, property setters, and fields
@@ -408,27 +534,27 @@ declare -a Trait_Attr_IsReadOnly             ## 1=The attr is read-only (default
 Validation, callbacks, and events are processed in the order listed here.
 
 ~~~bash
-declare -a Trait_Attr_StaticValue            ## Where class-level "static" values live (fields and props)
-declare -a Trait_Attr_IsWORM                 ## Write-Once, Read Many
-declare -a Trait_Attr_DataType               ## bool, int, float, str, datetime, base64u, any
-declare -a Trait_Attr_Callback_Sanitize      ## Optional code to strip input of formatting.
-declare -a Trait_Attr_IsRequired             ##
-declare -a Trait_Attr_CanBeNull              ##
-declare -a Trait_Attr_IsNull                 ##
-declare -a Trait_Attr_DefaultVal             ##
-declare -a Trait_Attr_CanBeEmpty             ##
-declare -a Trait_Attr_MinChars               ## It's valid for CanBeEmpty=1 and MaxChars>0.
-declare -a Trait_Attr_MaxChars               ##
-declare -a Trait_Attr_MinVal                 ##
-declare -a Trait_Attr_MaxVal                 ##
-declare -a Trait_Attr_ValidRegex             ## Evaluated via `grep -Pq "..."` subshell
-declare -a Trait_Attr_Callback_Validate      ## Optional extra validation, allows canceling.
-declare -a Trait_Attr_Callback_Format        ## Formats input for output.
-declare -a Trait_Attr_Value_Formatted        ## Read-only externally
-declare -a Trait_Attr_Event_Changed          ## FYI, can't be canceled.
-declare -a Trait_Attr_FriendlyTitle          ## Optional dev helper for UIs (e.g. TUIs).
-declare -a Trait_Attr_ShortDescription       ## Optional dev helper for UIs (e.g. TUIs).
-declare -a Trait_Attr_HelpText               ## Optional dev helper for UIs (e.g. TUIs).
+declare -a Trait_Attr_StaticValue ## Where class-level "static" values live (fields and props)
+declare -a Trait_Attr_IsWORM ## Write-Once, Read Many
+declare -a Trait_Attr_DataType ## bool, int, float, str, datetime, base64u, any
+declare -a Trait_Attr_Callback_Sanitize ## Optional code to strip input of formatting.
+declare -a Trait_Attr_IsRequired ##
+declare -a Trait_Attr_CanBeNull ##
+declare -a Trait_Attr_IsNull ##
+declare -a Trait_Attr_DefaultVal ##
+declare -a Trait_Attr_CanBeEmpty ##
+declare -a Trait_Attr_MinChars ## It's valid for CanBeEmpty=1 and MaxChars>0.
+declare -a Trait_Attr_MaxChars ##
+declare -a Trait_Attr_MinVal ##
+declare -a Trait_Attr_MaxVal ##
+declare -a Trait_Attr_ValidRegex ## Evaluated via `grep -Pq "..."` subshell
+declare -a Trait_Attr_Callback_Validate ## Optional extra validation, allows canceling.
+declare -a Trait_Attr_Callback_Format ## Formats input for output.
+declare -a Trait_Attr_Value_Formatted ## Read-only externally
+declare -a Trait_Attr_Event_Changed ## FYI, can't be canceled.
+declare -a Trait_Attr_FriendlyTitle ## Optional dev helper for UIs (e.g. TUIs).
+declare -a Trait_Attr_ShortDescription ## Optional dev helper for UIs (e.g. TUIs).
+declare -a Trait_Attr_HelpText ## Optional dev helper for UIs (e.g. TUIs).
 ~~~
 
 Callbacks are invoked to provide the opportunity _change_ data and/or cancel an action before it happens.
@@ -438,8 +564,8 @@ Events are invoked to _inform_ the programmer that something happened.
 ###### Traits specific to code members: methods, property getters and setters, and events
 
 ~~~bash
-declare -a Trait_Attr_CodeType               ## method, property, callback, event
-declare -a Trait_Attr_Function               ## Name of the function to call
+declare -a Trait_Attr_CodeType ## method, property, callback, event
+declare -a Trait_Attr_Function ## Name of the function to call
 declare -a Trait_Attr_Function_PropSetter
 ~~~
 
@@ -455,8 +581,8 @@ Each entity can have any number of unique constraints (though ideally just one).
 
 ~~~bash
 declare -a UniqDef_UNQ_EntIdx
-declare -a UniqDef_UNQ_AttrIdxs    ## The attributes involved in the unique constraint.
-declare -A UniqDef_LookupUNQ       ## Composite unique key mapped to UnqDefIdx.
+declare -a UniqDef_UNQ_AttrIdxs ## The attributes involved in the unique constraint.
+declare -A UniqDef_LookupUNQ ## Composite unique key mapped to UnqDefIdx.
 ~~~
 
 ##### Many-to-many relationship definitions
@@ -480,31 +606,28 @@ Aka "instances", "objects", "records".
 
 Unique constraints are managed by `Uniq_*` (and the library code utilizing it).
 
-This may not look like much for a row definition but it gives us the only things we care about:
-
-1. The entity in belongs to,
-1. A RowIdx to attach traits to,
-1. A RowIdx to hang multiple cells off of.
-1. Half of what we need to enforce unique constraints. (The rest coming from the definition itself, and the cell values.)
-1. Everything we need to know to track M:M relationships.
-
 ~~~bash
 declare -a Row_EntIdx
+declare -a Row_ParentEntIdx
 ~~~
+
+The addition of `Row_ParentEntIdx` allows for optional direct object inheritance (in addition to standard OOP class-based inheritance).
+
+Furthermore, the code will facilitate creating an object "from scratch" - or more accurately from the original object prototype (ala JS), by basing it on EntIdx=0 (the original prototype).
 
 ##### Row Trait overrides - aka class overrides
 
 ~~~bash
 declare -a Row_EntTraitOverride_UNQ_RowIdx
 declare -A Row_EntTraitOverride_UNQ_TraitIdx
-declare -A Row_EntTraitOverride_LookupUNQ          ## Composite unique key mapped to Row_EntTraitOverrideIdx.
-declare -a Row_EntTraitOverride_Access             ## public (default), private, protected
-declare -a Row_EntTraitOverride_Inheritance        ## final, overridden
-declare -a Row_EntTraitOverride_IsReadOnly         ## 1=All cells and traits are read-only
+declare -A Row_EntTraitOverride_LookupUNQ ## Composite unique key mapped to Row_EntTraitOverrideIdx.
+declare -a Row_EntTraitOverride_Access ## public (default), private, protected
+declare -a Row_EntTraitOverride_Inheritance ## final, overridden
+declare -a Row_EntTraitOverride_IsReadOnly ## 1=All cells and traits are read-only
 declare -a Row_EntTraitOverride_Constructor
-declare -a Row_EntTraitOverride_Callback_Validate  ## Optionally allows canceling a save.
-declare -a Row_EntTraitOverride_Event_PreSave      ## Optional FYI, can't be canceled.
-declare -a Row_EntTraitOverride_Event_PostSave     ## An optional FYI
+declare -a Row_EntTraitOverride_Callback_Validate ## Optionally allows canceling a save.
+declare -a Row_EntTraitOverride_Event_PreSave ## Optional FYI, can't be canceled.
+declare -a Row_EntTraitOverride_Event_PostSave ## An optional FYI
 declare -a Row_EntTraitOverride_Destructor
 ~~~
 
@@ -514,9 +637,9 @@ This is a common idiom to RDBMSes. When you create a read/write or read-only vie
 
 ~~~bash
 declare -a View_UNQ_EntIdx
-declare -a View_UNQ_Label      ## Unique name, auto-generated GUID
+declare -a View_UNQ_Label ## Unique name, auto-generated GUID
 declare -A View_LookupUNQ
-declare -a View_CurrentRowIdx  ## Cursor
+declare -a View_CurrentRowIdx ## Cursor
 ~~~
 
 #### Cells
@@ -534,9 +657,9 @@ declare -A Cell_LookupUNQ
 ###### Traits overrides common to data and code members
 
 ~~~bash
-declare -a Cell_AttrTraitOverride_Access                 ## public (default), private, protected
-declare -a Cell_AttrTraitOverride_Inheritance            ## final, overridden
-declare -a Cell_AttrTraitOverride_IsReadOnly             ## 1=read-only
+declare -a Cell_AttrTraitOverride_Access ## public (default), private, protected
+declare -a Cell_AttrTraitOverride_Inheritance ## final, overridden
+declare -a Cell_AttrTraitOverride_IsReadOnly ## 1=read-only
 ~~~
 
 ###### Traits overrides specific to data members: attributes, property setters, and fields
@@ -566,8 +689,8 @@ declare -a Cell_AttrTraitOverride_HelpText
 ###### Traits overrides specific to code members: methods, property getters and setters, and events
 
 ~~~bash
-declare -a Cell_AttrTraitOverride_CodeType               ## method, property, callback, event
-declare -a Cell_AttrTraitOverride_Function               ## Name of the function to call
+declare -a Cell_AttrTraitOverride_CodeType ## method, property, callback, event
+declare -a Cell_AttrTraitOverride_Function ## Name of the function to call
 declare -a Cell_AttrTraitOverride_Function_PropSetter
 ~~~
 
@@ -576,10 +699,10 @@ declare -a Cell_AttrTraitOverride_Function_PropSetter
 ##### Unique constraint instances
 
 ~~~bash
-declare -a Uniq_UNQ_UniqDefIdx  ## The unique definition Idx
-declare -a Uniq_UNQ_Values      ## The values of the attributes involved in the unique constraint.
-declare -A Uniq_LookupUNQ       ## Composite unique key mapped to UnqIdx.
-declare -a Uniq_RowIdx          ## The specific RowIdx in question.
+declare -a Uniq_UNQ_UniqDefIdx ## The unique definition Idx
+declare -a Uniq_UNQ_Values ## The values of the attributes involved in the unique constraint.
+declare -A Uniq_LookupUNQ ## Composite unique key mapped to UnqIdx.
+declare -a Uniq_RowIdx ## The specific RowIdx in question.
 ~~~
 
 ##### Many-to-Many entity relationship instances
@@ -587,8 +710,8 @@ declare -a Uniq_RowIdx          ## The specific RowIdx in question.
 ~~~bash
 declare -a MtoM_UNQ_LeftRowIdx
 declare -a MtoM_UNQ_RightRowIdx
-declare -a MtoM_UNQ_RelationshipLabel  ## A name for this overall relationship, usually undefined.
-declare -A MtoM_LookupUNQ              ## This enforces the unique combination
+declare -a MtoM_UNQ_RelationshipLabel ## A name for this overall relationship, usually undefined.
+declare -A MtoM_LookupUNQ ## This enforces the unique combination
 ~~~
 
 ### Function definitions by usage example
@@ -600,9 +723,9 @@ A user (developer) may wish to create classes, fields, properties, and methods i
 There are also two equivalent syntaxes to accomplish the same thing:
 
 - Classic OOP syntax:
-	- `myThing = new  <thing>  <required constructor values>`
+- `myThing = new <thing> <required constructor values>`
 - Typical "collection" object or ORM syntax, of:
-	- `myThing = <thing>s.Add  <required constructor values>`
+- `myThing = <thing>s.Add <required constructor values>`
 
 Use whichever one you're comfortable with, or better yet - which best fits the context, because "Collections" feature heavily in this design.
 
@@ -618,55 +741,55 @@ For `=` assignment, it doesn't matter if there's a space or not. If it feels mor
 
 ~~~bash
 ## Create a new class/entity at runtime
-##   (even if you used .class files at startup)
+## (even if you used .class files at startup)
 ## Using Class-style syntax:
 local -i class_Machine
-oop  class_Machine=new Class  "Machine"
+oop class_Machine=new Class "Machine"
 
 ## Set one of the standard predefined properties
-oop  class_Machine.FriendlyName="Generic machines"
+oop class_Machine.FriendlyName="Generic machines"
 
 ## Add a custom class-level field at runtime
 local -i field_FightSong
-oop  field_FightSong = new class_Machine.Field  Label="FightSong"  Value="We are machines and we will dominate."
+oop field_FightSong = new class_Machine.Field Label="FightSong" Value="We are machines and we will dominate."
 
 ## Set optional properties to really lock the field down, via standard properties
-oop  field_FightSong.IsReadOnly=1  ## Can no longer be written to, only read.
-oop  field_FightSong.IsStatic=1    ## Class-level, no instance needed to access.
-oop  field_FightSong.IsFinal=1     ## Can't be overridden by subclasses.
+oop field_FightSong.IsReadOnly=1 ## Can no longer be written to, only read.
+oop field_FightSong.IsStatic=1 ## Class-level, no instance needed to access.
+oop field_FightSong.IsFinal=1 ## Can't be overridden by subclasses.
 
 ## Create attributes ("collection"-style syntax while ignoring return values)
-oop  class_Machine.Fields.Add  "SKU"
-oop  class_Machine.Fields["SKU"].Sanitize = fStripNonNumbers()
-oop  class_Machine.Fields["SKU"].Formatter = fMachine_Field_Formatter()
-	  ## That's how the `.class` file importer would set it up, but
-	  ## it could also point to a generic function.
-oop  class_Machine.Fields.Add  Label="SerialNumber"  FriendlyName="S/N#"
+oop class_Machine.Fields.Add "SKU"
+oop class_Machine.Fields["SKU"].Sanitize = fStripNonNumbers()
+oop class_Machine.Fields["SKU"].Formatter = fMachine_Field_Formatter()
+## That's how the `.class` file importer would set it up, but
+## it could also point to a generic function.
+oop class_Machine.Fields.Add Label="SerialNumber" FriendlyName="S/N#"
 
 ## Create a method
 local -i method_Temp
-oop  method_Temp = new class_Machine.Method  "ShoutMyName"  fMachine_Method_ShoutMyName()
-	  ## Loading functions into memory and assigning them to methods, would ordinarily be handled
-	  ##   by the `.class` parser at script startup, but can also be done manually like this.
-	  ## We don't HAVE to assign a return value, we could just blindly call
-	  ## 'class_Machine.Methods.Add' with constructor arguments.
+oop method_Temp = new class_Machine.Method "ShoutMyName" fMachine_Method_ShoutMyName()
+## Loading functions into memory and assigning them to methods, would ordinarily be handled
+## by the `.class` parser at script startup, but can also be done manually like this.
+## We don't HAVE to assign a return value, we could just blindly call
+## 'class_Machine.Methods.Add' with constructor arguments.
 
 ## Invoke fMachine_Method_ShoutMyName() via either one of:
-oop  Classes["Machine"].ShoutMyName
-oop  class_Machine.ShoutMyName
-oop  method_Temp
+oop Classes["Machine"].ShoutMyName
+oop class_Machine.ShoutMyName
+oop method_Temp
 
 ## Create an instance of "Machine"
 local -i objMachine1
-oop  objMachine1=new class_Machine
+oop objMachine1=new class_Machine
 
 ## Set and get some data
-oop  objMachine1.SKU="a123456789z"
-oop  objMachine1.SerialNumber="0045678900"
-oop  objMachine1.SerialNumber.IsReadOnly=1
+oop objMachine1.SKU="a123456789z"
+oop objMachine1.SerialNumber="0045678900"
+oop objMachine1.SerialNumber.IsReadOnly=1
 
 ## Garbage-collect the object
-oop  objMachine1 = nothing
+oop objMachine1 = nothing
 ~~~
 
 ## The rich existing landscape of Bash OOP projects
@@ -675,48 +798,48 @@ oop  objMachine1 = nothing
 
 - Many if not most bash OOP projects provide the ability to instantiate any number of "objects" based on "class" definition files, with something like a factory method pattern:
 
-	~~~bash
-	obj() {
+~~~bash
+obj() {
 
-		## Args
-		local -r className="$1"
-		local -r uniqueInstanceName="$2"
+## Args
+local -r className="$1"
+local -r uniqueInstanceName="$2"
 
-		## Load the contents of specified class, from '.class' file.
-		local classCode=$(<"${className}.class")
+## Load the contents of specified class, from '.class' file.
+local classCode=$(<"${className}.class")
 
-		## Replace dots in class code with _, in cases of objects as properties
-		classCode="${classCode//./_}"  ## For
+## Replace dots in class code with _, in cases of objects as properties
+classCode="${classCode//./_}" ## For
 
-		## Replace generic '__OBJECT__' in class definition, with instance name
-		## Then run the updated in-memory script, which creates the named variables.
-		. <(printf '%s' "${classCode//'__OBJECT__'/"${uniqueInstanceName}"}")
-	}
-	~~~
+## Replace generic '__OBJECT__' in class definition, with instance name
+## Then run the updated in-memory script, which creates the named variables.
+. <(printf '%s' "${classCode//'__OBJECT__'/"${uniqueInstanceName}"}")
+}
+~~~
 
-	This pattern helps facilitate later on: crude encapsulation, composition, method overriding, static classes, and destructors.
+This pattern helps facilitate later on: crude encapsulation, composition, method overriding, static classes, and destructors.
 
 - Syntactic sugar:
 
-	- Bash supports "." dot-notation in function names, allowing a visual OO appearance. When used in the right way and consistently, it help can lend an "OOP"-feel.
+- Bash supports "." dot-notation in function names, allowing a visual OO appearance. When used in the right way and consistently, it help can lend an "OOP"-feel.
 
-	- With helper functions, you can achieve the ability to set and get properties like `myObj.Name = "Bob"`. For example, via something like:
+- With helper functions, you can achieve the ability to set and get properties like `myObj.Name = "Bob"`. For example, via something like:
 
-		~~~bash
-		## Generic property abstraction
-		obj.Property(){
-			{ [[ "$2" == "=" ]] \
-				&& obj_Property[$1]="$3"; } \
-				|| echo "${obj_Property[$1]}"
-		}
+~~~bash
+## Generic property abstraction
+obj.Property(){
+{ [[ "$2" == "=" ]] \
+&& obj_Property[$1]="$3"; } \
+|| echo "${obj_Property[$1]}"
+}
 
-		## Specific property getter/setter
-		obj.FileName(){
-			{ [[ "$1" == "=" ]] \
-				&& obj.Property FileName = "$2"; } \
-				|| obj.Property FileName
-		}
-		~~~
+## Specific property getter/setter
+obj.FileName(){
+{ [[ "$1" == "=" ]] \
+&& obj.Property FileName = "$2"; } \
+|| obj.Property FileName
+}
+~~~
 
 ### Example projects on Github
 
