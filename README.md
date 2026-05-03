@@ -39,11 +39,11 @@ This is a design document. There is not much code yet, other than defined arrays
 
 Tooblin is a definitionally complete OOP Bash framework, that aims to run as natively as possible (after initial load).
 
-Any OOP programmer should immediately be able to use it with its standard OOP syntactic sugar - both in .class file layout, and runtime syntax.
+Any OOP programmer should feel immediately at home, and be able to use it with its standard OOP syntactic sugar - both in .class file layout, and runtime syntax, without having to get up to speed on setup or syntax.
 
-Also with strict data typing, entity relationships, and the five data normal forms for "free".
+It also provides strict data typing, entity relationships, and the five data normal forms along the way, for "free".
 
-While there _is_ as parsing layer for the OOP runtime syntax sugar, there is almost no reliance on subshells or external tools. Furthermore, all of the essential OOP goodness and structural integrity enforcement is also available in parallel as Bash-native function calls. (With the inherent ugliness and parameter opaqueness that you'd naturally expect from an ambitious Bash-native framework.) So if you have a critical section of code that demands minimal code abstraction within, say, a long-running nested loop - then there is a solution for that while still accessing the full OOP features.
+While there _is_ as parsing layer for the OOP runtime syntax sugar, there is almost no reliance on subshells or external tools. Furthermore, all of the essential OOP goodness and structural integrity enforcement is also available in parallel as Bash-native function calls. (With the inherent ugliness and parameter opaqueness that you'd naturally expect from an ambitious Bash-native framework.) So if you have a critical section of code that demands direct function access in, say, a long-running nested loop - then there is a solution for that.
 
 <!-- TOC ignore:true -->
 ## Table of contents
@@ -131,7 +131,7 @@ While there _is_ as parsing layer for the OOP runtime syntax sugar, there is alm
 
 ## Introduction
 
-There are potentially countless repositories on github that allow the simulation of OOP in Bash. It's obviously a significant interest among many.
+There are seemingly countless repositories on github that allow the simulation of OOP in Bash. It's obviously a significant interest among many.
 
 Many projects rely on some similar idioms, some of them discussed toward the bottom of this document.
 
@@ -206,7 +206,7 @@ The fundamental balance of any Bash-OOP library or framework, necessarily boils 
 
 1. Not requiring users to learn a new syntax.
 
-	Tooblin's simplified OO syntax is inspired directly by C#, Java, ES6, and Kotlin. There's nothing new or whacky.
+	Tooblin's simplified OO syntax is inspired directly by C#, Java, ES6, and Kotlin. There's nothing new or wacky.
 
 1. Reducing parsing layers and other performance overhead as much as possible. This can look like:
 
@@ -264,21 +264,21 @@ OK first let's get this out of the way...
 
 ### Myths and realities of Bash
 
-[This blog post](https://medium.com/capital-one-tech/bashing-the-bash-replacing-shell-scripts-with-python-d8d201bc0989) by a Python book author and influencer, somewhat hilariously tries to demonstrate that scripting system tasks in Python is superior than doing the same thing in Bash.
+[This blog post](https://medium.com/capital-one-tech/bashing-the-bash-replacing-shell-scripts-with-python-d8d201bc0989) by a Python book author and influencer, attempts to demonstrate that scripting system tasks in Python is superior than doing the same thing in Bash.
 
-But it winds up demonstrating the opposite. It starts with a short Bash script (39 lines that would be 33 if written idiomatically), and turns it into a comparatively absurdly complex Python script with many more lines of code and multiple functions. (For example, just shelling out to an external program, waiting for it to finish, and retrieving its results is a difficult and cumbersome task - as it is for most non-shell languages. That's just not what they were designed to do.)
+But with some humorous irony, it winds up demonstrating the opposite. It starts with a short Bash script (39 lines that would be 33 if written idiomatically), and turns it into a comparatively absurdly complex Python script with many more lines of code and multiple functions. (For example, just shelling out to an external program, waiting for it to finish, and retrieving its results is a difficult and cumbersome task - as it is for most non-shell languages. That's just not what they were designed to do.)
 
-Python is inarguably a superior, more elegant "language" than Bash. But better suited to task as a shell scripting language? If you relied on the post by itself to provide the answer, I think most reasonable people (who weren't paid to evangelize Python) would answer pretty resoundingly, "No".
+Python is inarguably a superior, more elegant "language" than Bash. But better suited to task as a shell scripting language? If you relied on the post by itself to provide the answer, I think most reasonable people (who hadn't built a career on evangelizing Python) would answer pretty resoundingly, "No".
 
 The post also repeats every one of the myths below, which must be some kind of record. And creates several unnecessary strawman arguments of its own, attributed to Bash, that have nothing to do with Bash.
 
-The published date on the blog is 2017; Bash v4.3 (with most of the modern features of 5) had been out for about three years by that point. And all of the key features existed in 4.0 by 2009 - eight years earlier.)
+The piece also misrepresents not just Bash but other common Linux `coreutils` - for example `sort`'s ability to sort on different keys.
 
-The piece also misrepresents not just Bash but other common Linux `coreutils` - for example `sort`'s ability to sort on different keys. It's not that Python can't do some of these things better (it can) - it's the confidently asserted misinformation, stated as fact, from an influencer.
+It's not that Python can't do some of these things better (it can) - the issue is the confidently asserted misinformation, stated as fact, from a respected influencer.
 
-The point is not to prove some random nine year-old opinion blog article "wrong". (Like, that's just your opinion man.) Nor defend the honor of Bash. The point is to present a real-world example that demonstrates "pervasive and persistent incorrect myths abound, about Bash", including beliefs passionately held by tech influencers. (And keep in mind, _this_ author isn't even a fan of Bash. I'm a veteran former OOP programmer. I like Python, love C# - and Go even more. I've linked to another git document within in this one, a summary of my previous long journey trying to replace Bash with something more elegant and OOP. Also _I'm the one turning Bash OOP_...)
+The point is not to prove some random nine year-old opinion blog article "wrong". (Like, that's just your opinion man.) Nor defend the honor of Bash. The point is to present a real-world example that demonstrates "pervasive and persistent incorrect myths abound, about Bash", including beliefs passionately held by tech influencers. (And keep in mind, _this_ author isn't even a fan of Bash. I'm a veteran former OOP programmer. I like Python, love C# - and Go even more. I've linked to another git document within in this one, a summary of my previous long journey trying to replace Bash with something more elegant and OOP. Also _I'm the one wanting to turn Bash OOP_...)
 
-As crimes against humanity go - its pretty low on the list. Probably even forgivable without punishment, retribution, or even forced reparations.
+As crimes against humanity go - its pretty low on the list. Probably even forgivable without punishment, retribution, or possibly even forced reparations.
 
 #### Myth: Bash is inappropriate for large tasks
 
@@ -366,37 +366,53 @@ Aka "After 100 lines of script, just switch to Python."
 
 #### Myth: Bash is slow
 
-- __Reality__: Well OK that's not a myth. It's objectively comparatively true, _but_ ...context and perspective are important.
+- __Reality__: "It's complicated".
 
-	"Speed" is not why people use Bash.
+	- __Yes__, it's objectively slow as a pure language. It's interpreted. No just-in-time compiler. Lines are executed one ...line ...at ...a ...time. (Although many structures are actually highly optimized in compiled machine code.)
+
+	- __No__, typical Bash shell scripts are not "slow" taken as a whole, in fact the whole point of any shell scripting language is to _orchestrate other programs_. An example being, processing massive amounts of data by subshelling out to `find | parallel :: awk`. (See also `grep`, `sed`, `sort`, etc.) These tools have been fine-tuned over decades to chew through massive filesystem and data tasks like hot butter.
+
+		- As long as process spawning is only done for big complex tasks, and not for trivial non-idiomatic commands buried in some nested loop - e.g. relying on `grep` for basic validation - any shell scripting language can shine.
+
+		- Although shell commands can also be executed from Python, treating it as a shell language like that and waiting for processes to finish, is no trivial task. (Though to be fair, that is the problem Xonsh - a Python shell interpreter - solves.)
 
 	Python, for example is also exceedingly slow, especially for the problem domains it's often used in. It also can't do true, uninhibited multithreading (yet).
 
-	Though to be fair, Python is usually used more as an orchestration layer for fast multithreaded libraries written in C. Often for rapid prototyping but also full-blown applications - in science, math, and data warehousing applications.
+	Though to be fair, Python is also usually used more as an orchestration layer - for fast multithreaded packages written in C. Often, for rapid prototyping but also full-blown applications. It's well-known in fields like science, math, and big data analytics.
 
-	Possibly because of those compiled code libraries for Python, the perception that "Python is fast and powerful" seems to be just as pervasive and misinformed, as "Bash is slow". (When in reality, Python's main "speed" advantage is it's binding interface to C program APIs.)
+	Possibly because of those compiled code libraries for Python, the perception that "Python is fast and powerful" seems to be just as pervasive and misinformed, as "Bash is slow". (When in reality, Python's main "speed" advantage is it's binding interface to C program APIs. That's hard to beat.)
 
-	In some controlled testing results available online, Python is roughly 10x faster than the same simple operations in Bash.
+	In some controlled testing results available online, pure Python is roughly 10x faster than the same simple operations in Bash.
 
 	But both are dwarfed by compiled programs such as Rust or Go being up to _50 to 100x_ faster than Python.
 
-	Nor does Bash get magically "slower" with large projects. "More lines of code" has no direct necessary corelation to "slower", other than initial load time (which Bash specifically trounces Python at anyway).
+	Another important point: __Bash does not magically get "slower" with more lines of code__.
 
-	In any project, "more lines of code" usually means "more unique code paths"; not necessarily "more code executed for every path". In any project in any language, critical core code paths are usually just as optimal in a version 1, as a version 10 with 1,000x more lines of code.
+	In any project, "more lines of code" usually means "more unique code paths"; not necessarily "more code executed for every path". In any project in any language, critical core code paths are usually just as optimal in a version 1, as a version 10 with 1,000x more lines of code. (And if that's not true, that's its own specific problem to solve.)
 
-	Things that must be addressed in any program, are important to address in Bash, too - such as unnecessarily deep loop nesting, recursion, and in general: Focus on call stacks that are too deep, and the specific code paths that consume the most time. (In Bash it's also important to avoid idioms that cause repeated subshells in long-running loops.)
+	"More lines of code", especially for interpreted programs, will slow down the initial load time - which Bash beats Python at anyway in most cases. So the "lines too many" argument - without regard to organization and code file management and just assuming it's all in one big unreadable file - is flawed, at it's core.
 
-	...None of which have anything to do with code line count.
+	__Lines of code and tuning__: Most programs in any language, benefit from at least superficial performance tuning, starting with profiling. Common problems:
 
-	But there are some non-trivial, non-corner cases where Bash - or any shell scripting language - can actually be significantly _faster_ than Python. An example being, processing massive amounts of data by subshelling out to the highly optimized `grep`, `awk`, and/or `sed`. Or tools like `find | parallel` that can chew through massive filesystem tasks. Etc. (Much like Python orchestrating C programs.) Although shell commands can also be done from Python, treating it as a shell language like that and waiting for processes to finish, is no trivial task. (Though to be fair, that is the problem Xonsh - a Python shell interpreter - solves.)
+	- Some problems that consume tuning time in other programming languages, aren't even possible in Bash, such as memory allocation patterns and stack overflows.
+
+	- Others issues are common across languages including Bash, such as algorithmic complexity - e.g. choosing a O(n^2) flat loop over a O(n log n) deep one if possible.
+
+	- And some challenges are unique to shell scripting languages, including bash. It's especially important to avoid process spawning (e.g. `$(...)` and pipes) for trivial commands, especially in loops. The exception being as mentioned before, big or complex tasks that purpose-made external `coreutils` are made to crush. Bash also has no tail-call optimization, and stack limits are low, so recursion should be avoided.
+
+	...None of which have anything to directly do with code line count.
+
+	In the end, making "program run faster" starts the same: Focus on the specific hot code paths that consume the most time, via profiling, and fix those first. Worry about micro-optimization "later". And don't worry about reducing code line count as it's own goal for no other reason.
 
 - __Why__ the myth: Probably because:
 
-	- It's not a myth. (But it is at least significantly faster than most other shell scripting languages, like Nu, YSH, etc.)
+	- It's not technically a myth, out of context.
 
-	- It's easy if possibly not even attractive for non-programmers to write poor Bash script, and there's a lot of it. Even in online tutorials and examples.
+	- It's easy - if possibly not even attractive - for non-programmers to write poor Bash script. And there's a lot of it out there. Even in online tutorials and examples. Call it Selection Bias, Confirmation Bias, Frequency Illusion (though not much of "illusion"), Apophenia. But we tend to see bad Bash code everywhere.
 
-	- Once a non-programmer learns Bash, maybe it becomes the only hammer available to hit everything that starts looking like a nail with?
+	And in spite of being a veteran programmer, I too have written dozens if not _hundreds_ of truly hideous, non-idiomatic Bash script. Some of which lingers as legacy boilerplate to this day in new work - because it "just works", and it's not a high enough priority to invest the time to refactor. "Bad Bash" seems to be a self-reinforcing problem, as online guides teach poor practices and habits, which lead to bad scripts, and bad online guides.
+
+	I am doing my small part to try to right that problem, with the still early-stage [Bash 5 Ultimate Guide](https://github.com/jim-collier/bash-5-ultimate-guide/blob/main/bash-5-ultimate-guide.md).
 
 ### Bash is already installed everywhere and has no inherent dependencies
 
@@ -416,17 +432,17 @@ This is really the main point, and reason Tooblin exists - or may hopefully some
 
 ### There is currently no obvious superior successor to Bash for most shell scripting use-cases
 
-This may seem like a surprising, if even indefensible assertion. While there are vastly superior alternatives to Bash as a system shell scripting language on some facets (profoundly superior even), all come with tradeoffs that may be indigestible to some or many users and administrators.
+This may seem like a surprising, if even indefensible assertion. While there are several _profoundly_ superior alternatives to Bash as a system shell scripting language on some facets, all come with tradeoffs that may be unacceptable to some users, administrators, and/or organizations.
 
 The root of the problem may be, ironically, the dire need for a superior alternative to Bash. There may just be such an incredible vacuum, that there are too many outstanding candidates to replace it. And because of that, sadly none have gained enough traction - the critical mass - necessary to topple the crown.
 
-And I'm not even counting newer shells like `zsh` or `fish`. Those are \[arguably\] not nearly enough of a generational leap to justify a complete overhaul and retooling of utility stacks, let alone Linux itself. The only reason Apple switched from Bash to Zsh, wasn't because Zsh is arguably superior. It was due to its compatible MIT license, whereas Bash is frozen at v3.2, before it switched to the Darwin-incompatible GPLv3 license.)
+And I'm not even counting newer shells like `zsh` or `fish`. Those are (arguably) not nearly enough of a generational leap to justify a complete overhaul and retooling of utility stacks, let alone Linux itself. The only reason Apple switched from Bash to Zsh, wasn't because Zsh is vastly superior. (It's arguably "incrementally better".) It was due to its compatible MIT license, whereas Bash on Darwin is frozen at v3.2, before it switched to the Darwin-incompatible GPLv3 license with Linux.)
 
-More modern, vastly superior successors to Bash that _might_ easily justify a compete retooling - such as Powershell, Nushell, Xonsh, or YSH - arguably come with too many tradeoffs.
+More modern, superior successors to Bash that _might_ easily justify a compete retooling - such as Powershell, Nushell, Xonsh, or YSH - arguably come with too many tradeoffs, and/or too little mindshare.
 
 Such cruel irony.
 
-This cornundrum is investigated in more detail, as mentioned before, in this [system shell script language comparison](https://github.com/jim-collier/x9bash5-template/blob/main/shell_script_comparison.md), by this author.
+This conundrum is investigated in more detail, as mentioned before, in this [system shell script language comparison](https://github.com/jim-collier/x9bash5-template/blob/main/shell_script_comparison.md), by this author.
 
 ## Tooblin goals
 
