@@ -220,21 +220,23 @@ The fundamental balance of any Bash-OOP library or framework, necessarily boils 
 
 This is mainly targeted at the intersection of:
 
-- Terminal users, developers, devops, and sysadmin shell scripters who make heavy use of Bash for complex tasks that often grow into permanent tools that need frequent updates for a changing environment,
-
-- who may need to update the script ten to twenty years into the future, and don't want to deal with the hassle of getting the correct historical tooling and compiler versions (or JIT runtime) set up for a compiled program (or even scripted program - I'm looking at you Python),
-
-	- Which may not even be possible by then due to system-breaking dependency problems - at least not without a container, VM, and/or Flatpak/AppImage/NixOS-derivation packages, etc.) And...
+- Heavy terminal users, developers, techops, sysops, devops, and other shell users who make heavy use of Bash scripting, for complex tasks that often grow into permanent tools that need frequent updates for changing environments and requirements,
 
 - who are also current or former OOP programmers,
 
 - who deal often with large amounts of structured data (e.g. filesystems, filesystem metadata, media file metadata such as EXIF/XMP, etc.),
 
-- for problems that need quite a bit more complex logic or manipulation than `grep`, `sed`, and/or `awk` can accomplish in bulk in an easy-to-accomplish manner,
+- for problems that need quite a bit more complex logic or manipulation than `find`, `grep`, `sed`, `sort`, `parallel`, `awk` (etc.) can accomplish in bulk in an easy-to-accomplish manner,
 
-- who find that they often spend much of their time writing (or copying) boilerplate script to accomplish the same kinds of heavy data-oriented tasks over and over again, and
+- who find that they often spend much of their time writing (or copying) boilerplate script to accomplish the same kinds of heavy data-oriented tasks over and over again,
 
-- who need strong data relationship integrity enforcement with no extra effort - and/or strong data typing.
+- who need strong data relationship integrity enforcement and/or strong data typing with no extra effort,
+
+- who cant' justify retooling their stack and/or learning yet another new syntax for superior shell scripting alternatives like NuShell, Xonsh, Powershell, etc., and
+
+- who may need to update the script ten to twenty years into the future, and don't want to deal with the hassle of getting the correct historical tooling and compiler versions (or JIT runtime) set up for a compiled program (or even scripted program - I'm looking at you Python)
+
+	- Which may not even be possible by then due to system-breaking dependency problems - at least not without a container, VM, and/or Flatpak/AppImage/NixOS-derivation packages, etc.)
 
 ## Who this isn't for
 
@@ -257,10 +259,6 @@ This is mainly targeted at the intersection of:
 - People who hate adventure and probably also puppies.
 
 ## But no really...Why?
-
-Fair point.
-
-OK first let's get this out of the way...
 
 ### Bash is already installed everywhere and has no inherent dependencies
 
