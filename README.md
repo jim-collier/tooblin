@@ -342,7 +342,7 @@ Aka "After 100 lines of script, just switch to Python."
 
 	Each file can each have their own independent, versioned interfaces that remain stable while the internals change. Just as with any other language.
 
-	The challenge - as always across time and space for any software project - is how to best chop a project up for optimal "asynchronous" development. That's the tech lead's job.
+	The challenge - as always across time and space for any software project - is how to best chop up a project for optimal asynchronous development. That's the tech lead's job.
 
 ### Myth: Bash and Sh scripts are the same
 
@@ -350,7 +350,7 @@ Aka "After 100 lines of script, just switch to Python."
 
 	_Bash is to Sh, like C++ is to C._
 
-	C++ is way more advanced, but you can still write C in C++.
+	C++ is way more advanced than C, but you can still write C in C++.
 
 	Users writing POSIX script in Bash without a good reason (or even knowing there are better idiomatic alternatives), is very much like someone writing C in a C++ project without a good reason (or even knowing there are better idiomatic alternatives).
 
@@ -398,7 +398,7 @@ Aka "After 100 lines of script, just switch to Python."
 
 	- __Yes__, it's objectively slow as a pure language. It's interpreted. No just-in-time compiler. Lines are executed one ...line ...at ...a ...time. (Although many structures are actually highly optimized in compiled machine code.)
 
-	- __No__, typical Bash shell scripts are not "slow" taken as a whole, in fact the whole point of any shell scripting language is to _orchestrate other programs_. An example being, processing massive amounts of data by subshelling out to `find | parallel :: awk`. (See also `grep`, `sed`, `sort`, etc.) These tools have been fine-tuned over decades to chew through massive filesystem and data tasks like hot butter.
+	- __No__, typical Bash shell scripts are not "slow" taken as a whole, in fact the whole point of any shell scripting language is to _orchestrate other programs_. An random example being, processing massive amounts of filesystem data by subshelling out to `find | parallel :: awk`. (See also `grep`, `sed`, `sort`, etc.) These tools have been fine-tuned over decades to chew through massive filesystem and data tasks like hot butter.
 
 		- As long as process spawning is only done for big complex tasks, and not for trivial non-idiomatic commands buried in some nested loop - e.g. relying on `grep` for basic validation - any shell scripting language can shine.
 
@@ -406,7 +406,7 @@ Aka "After 100 lines of script, just switch to Python."
 
 	Python, for example is also exceedingly slow, especially for the problem domains it's often used in. It also can't do true, uninhibited multithreading (yet).
 
-	Though to be fair, Python is also usually used more as an orchestration layer - for fast multithreaded packages written in C. Often, for rapid prototyping but also full-blown applications. It's well-known in fields like science, math, and big data analytics.
+	Though to be fair, Python is also usually used more as an orchestration layer - for fast multithreaded packages written in C. Often, for rapid prototyping but also full-blown applications. It's well-known in fields like science, math, and big-data analytics.
 
 	Possibly because of those compiled code libraries for Python, the perception that "Python is fast and powerful" seems to be just as pervasive and misinformed, as "Bash is slow". (When in reality, Python's main "speed" advantage is it's binding interface to C program APIs. That's hard to beat.)
 
