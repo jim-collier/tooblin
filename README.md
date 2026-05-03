@@ -37,7 +37,7 @@ This is a design document. There is not much code yet, other than defined arrays
 
 (_And more than a design document, it has also turned into something of a _justification_ for "Bash-OOP" - if only for this author._)
 
-TOOBLIN is a definitionally complete OOP Bash framework, that aims to run as natively as possible (after initial load).
+Tooblin is a definitionally complete OOP Bash framework, that aims to run as natively as possible (after initial load).
 
 Any OOP programmer should immediately be able to use it with its standard OOP syntactic sugar - both in .class file layout, and runtime syntax.
 
@@ -67,9 +67,9 @@ While there _is_ as parsing layer for the OOP runtime syntax sugar, there is alm
 		- [Myth: There are no testing frameworks for Bash](#myth-there-are-no-testing-frameworks-for-bash)
 		- [Myth: Bash is slow](#myth-bash-is-slow)
 	- [Bash is already installed everywhere and has no inherent dependencies](#bash-is-already-installed-everywhere-and-has-no-inherent-dependencies)
-	- [Shell scripting is its own specific domain that Bash is well-suited for, but the problems in the domain can nevertheless be complex, and/or rapidly grow in complexity unexpectedly once a project is well underway](#shell-scripting-is-its-own-specific-domain-that-bash-is-well-suited-for-but-the-problems-in-the-domain-can-nevertheless-be-complex-andor-rapidly-grow-in-complexity-unexpectedly-once-a-project-is-well-underway)
+	- [Shell scripting is its own specific domain that Bash is well-suited for, but the problems in the domain can still be complex, and/or rapidly grow in complexity unexpectedly once a project is well underway](#shell-scripting-is-its-own-specific-domain-that-bash-is-well-suited-for-but-the-problems-in-the-domain-can-still-be-complex-andor-rapidly-grow-in-complexity-unexpectedly-once-a-project-is-well-underway)
 	- [There is currently no obvious superior successor to Bash for most shell scripting use-cases](#there-is-currently-no-obvious-superior-successor-to-bash-for-most-shell-scripting-use-cases)
-- [TOOBLIN goals](#tooblin-goals)
+- [Tooblin goals](#tooblin-goals)
 	- [Present boring, standard OOP syntax sugar that is immediately usable by any OOP programmer](#present-boring-standard-oop-syntax-sugar-that-is-immediately-usable-by-any-oop-programmer)
 	- [Provide strong OOP structural integrity enforcement and definitionally true and 100% complete "OOP"](#provide-strong-oop-structural-integrity-enforcement-and-definitionally-true-and-100%25-complete-oop)
 	- [Support for optional more advanced OOP features](#support-for-optional-more-advanced-oop-features)
@@ -81,13 +81,13 @@ While there _is_ as parsing layer for the OOP runtime syntax sugar, there is alm
 	- [Enforcement of five data Normal Forms with no extra work](#enforcement-of-five-data-normal-forms-with-no-extra-work)
 	- [Back-end storage agnostic](#back-end-storage-agnostic)
 	- [Serializable datasets and object states](#serializable-datasets-and-object-states)
-	- [Highly extensible for plug-ins and wrappers](#highly-extensible-for-plug-ins-and-wrappers)
+	- [Extensible for plug-ins and wrappers](#extensible-for-plug-ins-and-wrappers)
 - [Reference](#reference)
 	- [OO and RDBMS are the same concept - separated in time, technologies and tools, targeted problems, and skillsets](#oo-and-rdbms-are-the-same-concept---separated-in-time-technologies-and-tools-targeted-problems-and-skillsets)
 	- [Associative arrays](#associative-arrays)
 	- [Index arrays](#index-arrays)
 	- [UNQ: Unique Constraints - defines logical row and object uniqueness](#unq-unique-constraints---defines-logical-row-and-object-uniqueness)
-- [How the TOOBLIN magic is done](#how-the-tooblin-magic-is-done)
+- [How the Tooblin magic is done](#how-the-tooblin-magic-is-done)
 	- [OOP syntax](#oop-syntax)
 	- [Unique constraints and fast lookups](#unique-constraints-and-fast-lookups)
 	- [Real object variables](#real-object-variables)
@@ -137,7 +137,7 @@ Many projects rely on some similar idioms, some of them discussed toward the bot
 
 The section [The rich existing landscape of Bash-OOP projects](#the-rich-existing-landscape-of-bash-oop-projects) below, gives an overview of some common approaches.
 
-This project aims to find a better balance between "syntactic sugar" and "native Bash performance", by borrowing what already works, and incrementally improving on - or occasionally reinventing if all else fails - what doesn't.
+Tooblin aims to find a better balance between "syntactic sugar" and "native Bash performance", by borrowing what already works, and incrementally improving on - or occasionally reinventing if all else fails - what doesn't.
 
 It aims to accomplish pure OOP syntax and structural integrity enforcement, with a thinner and faster layer over Bash than the others (and with alternative direct access to 100% Bash that still maintains OOP integrity) - in part by trying to dumb things down to their simplest necessary forms.
 
@@ -161,9 +161,15 @@ Most Bash-OOP implementations, in this author's estimation, get the balance skew
 
 - Full-blown OOP syntax that programmers are immediately comfortable with - but which require complicated boilerplate and setup, and/or steep processing overhead where everything is wrapped and parsed to death. And in many cases, they seem to be more academic exercises "just because", rather than fully-featured practical solutions. (And the pot should be very careful calling things colors, on this point.)
 
-The main problem with Bash-OOP solutions that introduce their own custom syntax - often in an effort to eliminate any syntax parsing layer - is this: __Why bother learning a whole new one-off syntax for _Bash scripting_, when you might as well put that effort into learning a new "real" language__? Or a more modern, advanced shell scripting language like [Powershell](https://github.com/PowerShell/PowerShell), [YSH](https://oils.pub/ysh.html), [Nu](https://www.nushell.sh/), [Xonsh](https://xon.sh/), or one of [countless other shell languages](https://github.com/oils-for-unix/oils/wiki/Alternative-Shells)?
+(There is a third category - projects that don't optimize either and marry the worst of both worlds: Heavy wrapping and parsing, _and_ their own new, custom syntax that doesn't exist anywhere else.)
 
-- _To help answer that question of Bash replacements, here's a [system shell script language comparison](https://github.com/jim-collier/x9bash5-template/blob/main/shell_script_comparison.md) from another project by this same author. It comes at the problem from the perspective of "I want to move away from Bash for shell scripting - what is the best replacement?", with the earnest attempt to find one. It identified no clear winner - only a few definite losers._
+The main problem with Bash-OOP solutions that introduce their own custom syntax (hopefully in an effort to eliminate any syntax parsing layer), is this:
+
+__Why bother learning a whole new one-off syntax for _Bash scripting_, when you might as well put that effort into learning a more modern, advanced shell scripting language?__
+
+(Such as [Powershell](https://github.com/PowerShell/PowerShell), [YSH](https://oils.pub/ysh.html), [NuShell](https://www.nushell.sh/), [Xonsh](https://xon.sh/), or one of [countless other shell languages](https://github.com/oils-for-unix/oils/wiki/Alternative-Shells)?
+
+_To help answer that question of Bash replacements, here's a [system shell script language comparison](https://github.com/jim-collier/x9bash5-template/blob/main/shell_script_comparison.md) from another project by this same author. It comes at the problem from the perspective of "I want to move away from Bash for shell scripting - what is the best replacement?", with the earnest attempt to find one. The results were genuinely disappointing - it identified no clear winner, only a few definite losers._
 
 ### Targeting support for Bash versions released prior to 2014
 
@@ -186,7 +192,7 @@ There are arguably three main reasons for handicapping a Bash-OOP project by tar
 
 	__Counterpoint__: If a user is savvy enough to be doing Bash scripting complicated enough to warrant a Bash-OOP library (which already involves its own download/installation process), then they are almost certainly capable enough to follow simple online instructions, and run a couple of Zsh commands to install Brew, install Bash 5, and make it the default shell. (As they likely have already done long ago.)
 
-1. Aiming for POSIX-compliance, for some godforsaken reason. (POSIX doesn't even support _arrays_.) Such Bash-OOP projects are all but unusable. (There seems to be, mercifully, only one such project remaining - [clash](https://github.com/lhoursquentin/clash) - but it seems like there used to be more.) Although the POSIX standard has had minor tweaks through at least 2024, its core - and scripting limitations - were published in 1992. Such projects have _severely_ hamstrung themselves and their users, by 34 years. (As of 2026.) And usually for no good reason.
+1. Aiming for POSIX-compliance, for some godforsaken reason. (POSIX doesn't even support _arrays_. As in, index arrays. Any arrays.) Such Bash-OOP projects are all but unusable. (There seems to be, mercifully, only one such project remaining - [clash](https://github.com/lhoursquentin/clash) - but it seems like there used to be more.) Although the POSIX standard has had minor tweaks through at least 2024, its core - and scripting limitations - were published in 1992. Such projects have _severely_ hamstrung themselves and their users, by 34 years. (As of 2026.) And usually for no good reason.
 
 	__Counterpoint__: The only place POSIX-compliance is generally a hard requirement (besides supporting company legacy scripts for example), is in the Linux startup stage, where some scripts are run 'sourced' in `sh`, regardless of the script's shebang. But needing a Bash-OOP in the lean startup stage, could be a symptom of a bigger problem.
 
@@ -200,7 +206,7 @@ The fundamental balance of any Bash-OOP library or framework, necessarily boils 
 
 1. Not requiring users to learn a new syntax.
 
-	For a framework that claims to offer Bash-OOP, from a user's perspective, a familiar OOP syntax is the easiest hurdle to overcome. And practically the most important requirement. It's a hard-sell to get someone to learn an all-new syntax... for _Bash_.
+	Tooblin's simplified OO syntax is inspired directly by C#, Java, ES6, and Kotlin. There's nothing new or whacky.
 
 1. Reducing parsing layers and other performance overhead as much as possible. This can look like:
 
@@ -208,17 +214,17 @@ The fundamental balance of any Bash-OOP library or framework, necessarily boils 
 
 	- Offering an alternate access path to all the same OOP goodness, for performance-critical sections, via 100% non-wrapped native Bash syntax. (That is invariably going to be more difficult to learn, read, understand, and maintain.)
 
-This project aims to accomplish both: Pure OOP-syntax (with narrow syntax flexibility to ease parsing load), and offering parallel alternate Bash-only paths for performance-critical sections.
+	Tooblin aims to accomplish both for performance: Narrow OOP syntax flexibility to ease parsing load, and offering parallel alternate Bash-only paths, if necessary for performance-critical sections.
 
 ## Who is this for, and why?
 
 This is mainly targeted at the intersection of:
 
-- Terminal users, developers, and sysadmin shell scripters who make heavy use of Bash for one-off tasks that too often grow into larger permanent tools,
+- Terminal users, developers, devops, and sysadmin shell scripters who make heavy use of Bash for complex tasks that often grow into permanent tools that need frequent updates for a changing environment,
 
-- who may need to update the script ten to twenty years into the future, and don't want to deal with the hassle of getting the correct historical tooling and compiler versions (or JIT runtime) set up for a compiled program,
+- who may need to update the script ten to twenty years into the future, and don't want to deal with the hassle of getting the correct historical tooling and compiler versions (or JIT runtime) set up for a compiled program (or even scripted program - I'm looking at you Python),
 
-	- (Which may not even be possible due to system-breaking dependency problems - at least not without a container, VM, and/or Flatpak/AppImage/NixOS-derivation packages, etc.) And...
+	- Which may not even be possible by then due to system-breaking dependency problems - at least not without a container, VM, and/or Flatpak/AppImage/NixOS-derivation packages, etc.) And...
 
 - who are also current or former OOP programmers,
 
@@ -232,13 +238,13 @@ This is mainly targeted at the intersection of:
 
 ## Who this isn't for
 
-- Programmers who need compiled native machine code for optimal performance and/or minimal distribution dependencies.
+- Programmers who need compiled native machine code for optimal performance and/or zero distribution dependencies.
 
 - Users who prefer to get shell automation tasks done with elegant compiled languages, rather than boring procedural script.
 
 - Utility authors who can't rely on their users having `coreutils` installed on their systems, and of the right version. (Notably macOS Darwin and some BSDs.)
 
-- Users who prefer to get shell automation tasks done with more advanced and/or JIT compiled scripting languages such as Powershell or Python (and don't mind the occasional version breakage and dependency issues - especially notorious in the latter case).
+- Users who prefer to get shell automation tasks done with more advanced and/or JIT compiled scripting languages such as Powershell or Python/Xonsh (and don't mind the occasional version breakage and dependency issues).
 
 - Bash purists
 
@@ -258,21 +264,21 @@ OK first let's get this out of the way...
 
 ### Myths and realities of Bash
 
-[This blog post](https://medium.com/capital-one-tech/bashing-the-bash-replacing-shell-scripts-with-python-d8d201bc0989) somewhat hilariously tries to demonstrate that scripting system tasks in Python is superior than doing the same thing in Bash.
+[This blog post](https://medium.com/capital-one-tech/bashing-the-bash-replacing-shell-scripts-with-python-d8d201bc0989) by a Python book author and influencer, somewhat hilariously tries to demonstrate that scripting system tasks in Python is superior than doing the same thing in Bash.
 
-But it winds up sort of demonstrating the opposite pretty clearly. It starts with a short Bash script, and turns it into a comparatively absurdly complex Python script with many more lines of code. For example, just shelling out to an external program, waiting for it to finish, and retrieving its results is a difficult and cumbersome task. (As it is for most non-shell languages. That's not what they were designed for.)
+But it winds up demonstrating the opposite. It starts with a short Bash script (39 lines that would be 33 if written idiomatically), and turns it into a comparatively absurdly complex Python script with many more lines of code and multiple functions. (For example, just shelling out to an external program, waiting for it to finish, and retrieving its results is a difficult and cumbersome task - as it is for most non-shell languages. That's just not what they were designed to do.)
 
-Python is inarguably a superior, more elegant "language" than Bash. But better suited to task as a shell or even system scripting language? If the post is to provide the answer, I think most reasonable people (who weren't paid to program in - and apparently evangelize - Python) would answer "No".
+Python is inarguably a superior, more elegant "language" than Bash. But better suited to task as a shell scripting language? If you relied on the post by itself to provide the answer, I think most reasonable people (who weren't paid to evangelize Python) would answer pretty resoundingly, "No".
 
-The post also repeats many of the myths below - possibly all of them. The published date on the blog is 2017 - Bash v4.3 had been out for about three years by that point. (And all of the key features existed in 4.0 by 2009 - eight years earlier.) By 2017, most of those specific criticisms were either already false, based on old myths - or to try to most charitably steelman and not even correctly, "were only three years out of date at the time". (Or Alternatively: it's just opinions man, who cares?)
+The post also repeats every one of the myths below, which must be some kind of record. And creates several unnecessary strawman arguments of its own, attributed to Bash, that have nothing to do with Bash.
 
-The piece also misrepresents other common Linux `coreutils` - for example `sort`, by implying that it can't sort on different and even multiple keys. Whether doing so in native Python is better or not (probably and there's no subshell involved), isn't the point. The point is the confidently asserted misinformation, stated as an assumed fact, as an aside even.
+The published date on the blog is 2017; Bash v4.3 (with most of the modern features of 5) had been out for about three years by that point. And all of the key features existed in 4.0 by 2009 - eight years earlier.)
 
-The point is not to prove some random nine year-old opinion piece "wrong". It is only presented as evidence that "pervasive common myths exist about Bash", including passionately held by apparently visible tech influencers. (And keep in mind, this author isn't even the biggest fan of Bash. I'm a veteran former OOP programmer. I like Python, love C# - and Go even more. I mean, I'm the one wanting to make Bash OOP...)
+The piece also misrepresents not just Bash but other common Linux `coreutils` - for example `sort`'s ability to sort on different keys. It's not that Python can't do some of these things better (it can) - it's the confidently asserted misinformation, stated as fact, from an influencer.
+
+The point is not to prove some random nine year-old opinion blog article "wrong". (Like, that's just your opinion man.) Nor defend the honor of Bash. The point is to present a real-world example that demonstrates "pervasive and persistent incorrect myths abound, about Bash", including beliefs passionately held by tech influencers. (And keep in mind, _this_ author isn't even a fan of Bash. I'm a veteran former OOP programmer. I like Python, love C# - and Go even more. I've linked to another git document within in this one, a summary of my previous long journey trying to replace Bash with something more elegant and OOP. Also _I'm the one turning Bash OOP_...)
 
 As crimes against humanity go - its pretty low on the list. Probably even forgivable without punishment, retribution, or even forced reparations.
-
-And I'm not sure the honor of Bash needs "defending" from such slights. But here we go:
 
 #### Myth: Bash is inappropriate for large tasks
 
@@ -338,7 +344,7 @@ Aka "After 100 lines of script, just switch to Python."
 	- K&R brace style on functions
 	- You can put semicolons everywhere - legal even when redundant.
 
-	- __Why__ the myth: Probably because there's a large kernel of truth: It's true for POSIX-compliant Sh scripts, in most system Bash scripts that ship with Linux, and with most online examples and instruction.
+- __Why__ the myth: Probably because there's a large kernel of truth: It's true for POSIX-compliant Sh scripts, in most system Bash scripts that ship with Linux, and with most online examples and instruction.
 
 	It _can_ be obtuse and arcane, and too often is. But it doesn't have to be, and "shouldn't" be.
 
@@ -364,21 +370,25 @@ Aka "After 100 lines of script, just switch to Python."
 
 	"Speed" is not why people use Bash.
 
-	Python, for example is also exceedingly slow, especially for the problem domains it's often used in. It also can't do true, uninhibited multithreading (though that's being addressed).
+	Python, for example is also exceedingly slow, especially for the problem domains it's often used in. It also can't do true, uninhibited multithreading (yet).
 
-	Though to be fair, Python is usually used more as an orchestration layer for fast multithreaded libraries - in science, math, and data warehousing.
+	Though to be fair, Python is usually used more as an orchestration layer for fast multithreaded libraries written in C. Often for rapid prototyping but also full-blown applications - in science, math, and data warehousing applications.
 
-	Possibly because of those compiled code libraries for Python, the perception that "Python is fast and powerful" seems to be just as pervasive and misinformed, as "Bash is slow". (When in reality, Python's main "speed" advantage is it's good bindings interface to C programs.)
+	Possibly because of those compiled code libraries for Python, the perception that "Python is fast and powerful" seems to be just as pervasive and misinformed, as "Bash is slow". (When in reality, Python's main "speed" advantage is it's binding interface to C program APIs.)
 
-	In controlled testing by some- pure, simple Python is roughly 10x faster than the same simple operations in Bash. But both are dwarfed by compiled programs such as Rust or Go being up to _50 to 100x_ faster than Python.
+	In some controlled testing results available online, Python is roughly 10x faster than the same simple operations in Bash.
 
-	Nor does Bash get magically "slower" with large projects. As long as basic profiling and performance-testing is done, with the lowest-hanging fruit addressed first, "more lines of code" have no direct necessary corelation to "slower".
+	But both are dwarfed by compiled programs such as Rust or Go being up to _50 to 100x_ faster than Python.
 
-	In any project, "more lines of code" usually means "more unique code paths" - not necessarily "more code executed for every action". Core, critical code paths are usually just as optimal in a version 1, as a version 10.
+	Nor does Bash get magically "slower" with large projects. "More lines of code" has no direct necessary corelation to "slower", other than initial load time (which Bash specifically trounces Python at anyway).
 
-	Things that must be addressed in any program, are important to address in Bash, too - such as unnecessarily deep loop nesting, recursion, call stacks that are too deep, using idioms that cause repeated subshells in long-running nested loops, etc.
+	In any project, "more lines of code" usually means "more unique code paths"; not necessarily "more code executed for every path". In any project in any language, critical core code paths are usually just as optimal in a version 1, as a version 10 with 1,000x more lines of code.
 
-	But there are some non-trivial, non-corner cases where Bash - or any shell scripting language - can actually be significantly _faster_ than Python. And that is, processing massive amounts of data by subshelling out to the highly optimized `grep`, `awk`, and/or `sed`. (Etc.) Or piping them together in one call. (Much like Python orchestrating C programs.) Although shell commands can also be done from Python, treating it as a shell language like that and waiting for processes to finish, is no trivial task. (Although, that is the very problem Xonsh - a Python shell interpreter - solves.)
+	Things that must be addressed in any program, are important to address in Bash, too - such as unnecessarily deep loop nesting, recursion, and in general: Focus on call stacks that are too deep, and the specific code paths that consume the most time. (In Bash it's also important to avoid idioms that cause repeated subshells in long-running loops.)
+
+	...None of which have anything to do with code line count.
+
+	But there are some non-trivial, non-corner cases where Bash - or any shell scripting language - can actually be significantly _faster_ than Python. An example being, processing massive amounts of data by subshelling out to the highly optimized `grep`, `awk`, and/or `sed`. Or tools like `find | parallel` that can chew through massive filesystem tasks. Etc. (Much like Python orchestrating C programs.) Although shell commands can also be done from Python, treating it as a shell language like that and waiting for processes to finish, is no trivial task. (Though to be fair, that is the problem Xonsh - a Python shell interpreter - solves.)
 
 - __Why__ the myth: Probably because:
 
@@ -390,19 +400,19 @@ Aka "After 100 lines of script, just switch to Python."
 
 ### Bash is already installed everywhere and has no inherent dependencies
 
-Even on Windows with WSL.
+Even on Windows with WSL, though not by default. (And not a usable version by default on macOS.)
 
-And unlike Python and other scripted languages (even Powershell), it doesn't involve _dependency hell_.
+And unlike Python and other scripted languages (even Powershell), it doesn't involve _Dependency Hell_.
 
-There may be a minimum Bash version requirement, which can be checked for at runtime. But that's not _dependency hell_.
+There may be a minimum Bash version requirement, which can be checked for at runtime. But that's not _Dependency Hell_.
 
-There may be incompatible CLI programs on the system that any shell scripting language depends on - but that's still not Python-style _dependency hell_. The minimum required versions (and/or existence of) external programs can also be checked at runtime, with explicit, easy-to-follow recommendations given on how to solve each one.
+There may be incompatible CLI programs on the system that any shell scripting language depends on - but that's still not Python-style _Dependency Hell_. The minimum required versions (and/or existence of) external programs can also be checked at runtime, with explicit, easy-to-follow recommendations given on how to solve each one.
 
-This is not a matter of nitpicky semantics. Python dependency hell with third-party packages is a well-documented disaster: `pip` vs `poetry` vs `pipenv` vs `conda` vs `uv` vs `hatch`, transitive conflicts, native-extension build failures, PEP 668's externally-managed-environment errors on modern Linux, virtualenv lifecycle management, lockfile drift, etc. These are the bane of the Python developer's existence.
+This is not a matter of nitpicky semantics. Python dependency hell with third-party packages is a well-documented disaster: `pip` vs `poetry` vs `pipenv` vs `conda` vs `uv` vs `hatch`, transitive conflicts, native-extension build failures, PEP 668's externally-managed-environment errors on modern Linux, virtualenv lifecycle management, lockfile drift, etc. These are the bane of the Python user's existence. (For daily Python developers on a day-to-day basis not so much - as they have it all sorted out, until the next version or package update.)
 
-### Shell scripting is its own specific domain that Bash is well-suited for, but the problems in the domain can nevertheless be complex, and/or rapidly grow in complexity unexpectedly once a project is well underway
+### Shell scripting is its own specific domain that Bash is well-suited for, but the problems in the domain can still be complex, and/or rapidly grow in complexity unexpectedly once a project is well underway
 
-This is really the main point, and reason TOOBLIN exists - or may hopefully someday exist. There's really no effective counter, other than, "Well if the project rapidly grew in complexity unexpectedly, maybe you should have planned better". Except, such a hypothetical response wouldn't be useful or realistic.
+This is really the main point, and reason Tooblin exists - or may hopefully someday exist. There's really no effective counter, other than, "Well if the project rapidly grew in complexity unexpectedly, maybe you should have planned better". Except, such a hypothetical response wouldn't be useful or realistic.
 
 ### There is currently no obvious superior successor to Bash for most shell scripting use-cases
 
@@ -410,25 +420,25 @@ This may seem like a surprising, if even indefensible assertion. While there are
 
 The root of the problem may be, ironically, the dire need for a superior alternative to Bash. There may just be such an incredible vacuum, that there are too many outstanding candidates to replace it. And because of that, sadly none have gained enough traction - the critical mass - necessary to topple the crown.
 
-And I'm not even counting newer shells like `zsh` or `fish`. Those are \[arguably\] not nearly enough of a generational leap to justify a complete overhaul and retooling of many user toolkits, let alone Linux itself. (The only reason Apple switched from Bash to Zsh, was because Zsh has a compatible MIT license, whereas Bash is stuck at v3.2, before it switched to the Darwin-incompatible GPLv3.)
+And I'm not even counting newer shells like `zsh` or `fish`. Those are \[arguably\] not nearly enough of a generational leap to justify a complete overhaul and retooling of utility stacks, let alone Linux itself. The only reason Apple switched from Bash to Zsh, wasn't because Zsh is arguably superior. It was due to its compatible MIT license, whereas Bash is frozen at v3.2, before it switched to the Darwin-incompatible GPLv3 license.)
 
-More modern successors that _might_ easily justify a compete retooling of user if not large corporate toolkits (such as Powershell, Nushell, Xonsh, or YSH), arguably come with too many tradeoffs. Again, ironically, in part because there's too much competition fighting to replace Bash.
+More modern, vastly superior successors to Bash that _might_ easily justify a compete retooling - such as Powershell, Nushell, Xonsh, or YSH - arguably come with too many tradeoffs.
 
 Such cruel irony.
 
 This cornundrum is investigated in more detail, as mentioned before, in this [system shell script language comparison](https://github.com/jim-collier/x9bash5-template/blob/main/shell_script_comparison.md), by this author.
 
-## TOOBLIN goals
+## Tooblin goals
 
 ### Present boring, standard OOP syntax sugar that is immediately usable by any OOP programmer
 
-If the cognitive load is too high to learn a new, one-off, unfamiliar syntax just to achieve OOP-like Bash - then it's not going to have broad appeal.
+If the cognitive load is too high to learn a new, one-off, unfamiliar syntax just to achieve OOP-like Bash - then it's not going to gain traction.
 
-Any OOP programmer that can also script in Bash, should be able to immediately pick this up without having to read pages of `readme`s. If that's not the case, it's a fail.
+Any OOP programmer that can also script in Bash, should be able to immediately pick it up without having to read pages of `readme`s. If that's not the case, it's a fail.
 
-But _which_ OOP syntax, you might ask? As most programmers have learned, if you know one, you can essentially learn them all pretty easily. If you know two or three OOP languages, then you have probably come to understand OOP at a more fundamental level, and the specific syntax sugars use start to become irrelevant.
+But _which_ OOP syntax, you might ask? As most programmers have learned, if you know one, you can essentially learn them all pretty easily. And if you know two or three OOP languages, then you have probably come to understand OOP at a more fundamental level, and the specific syntax sugars used start to become irrelevant.
 
-The TOOBLIN syntax aims to be as generic OOP as possible, and borrows heavily from C#, Java, and Kotlin.
+The Tooblin syntax aims to be as generic OOP as possible, and borrows heavily from C#, Java, and Kotlin.
 
 ### Provide strong OOP structural integrity enforcement and definitionally true and 100% complete "OOP"
 
@@ -462,7 +472,7 @@ Under the hood, it's 100% native with almost no subshells. It's mostly just a bu
 
 All class methods, functions, fields, etc. are loaded into memory and given unique names. Class and member definitions can be in-line - in a `HEREDOC` for example - or in one or more `.class` files.
 
-After that, the only parsing done is to provide syntax sugar.
+After that, the only parsing done is to provide syntax sugar - which can be bypassed if necessary.
 
 ### Leaky abstractions as a feature not a bug
 
@@ -498,7 +508,7 @@ This is literally the same idea behind C++'s leaky abstraction of C, and both be
 
 ### Serializable datasets and object states
 
-### Highly extensible for plug-ins and wrappers
+### Extensible for plug-ins and wrappers
 
 Such as:
 
@@ -514,42 +524,42 @@ Such as:
 
 ### OO and RDBMS are the same concept - separated in time, technologies and tools, targeted problems, and skillsets
 
-This fundamental truth forms the core philosophy of TOOBLIN. Consider:
+This fundamental truth forms the core philosophy of Tooblin. Consider:
 
-| OOP term                          | RDBMS term                                            | Term used by TOOBLIN | Comments
+| OOP term                          | RDBMS term                                            | Term used by Tooblin | Comments
 | :--                               | :--                                                   | :--                  | :--
 | Class                             | Table schema                                          | Entity
 | Class member (Field, Property)    | Column                                                | Attribute | For OOP, especially Fields and Properties
-| Object, Instance                   | Row, Record                                           | Row       | TOOBLIN object/record guts are more RDBMS-like
+| Object, Instance                   | Row, Record                                           | Row       | Tooblin object/record guts are more RDBMS-like
 | Object member                     | Row&Column, Field                                     | Cell
 | Method                            | Stored Procedure                                      | Method
 | Callback                          | Trigger                                               | Callback
 | Event                             | Listener                                              | Event
 | Metadata, Annotations, Decorators | Constraints, Properties, Attributes, Modifiers        | Traits
 
-As of 2026 (and for a long time prior), the concept of the __RDBMS__ has been more about large scale, well-structured data storage, management, retrieval, and consistency.
+As of 2026 (and for decades prior), the concept of the __RDBMS__ has been more about large scale, well-structured data storage, management, retrieval, and consistency.
 
-Meanwhile __OOP__ has been more about programming, code safety readability and maintenance, and to some extent easier UI integration - independent of solutions for permanent storage.
+Meanwhile __OOP__ has been more about programming, code safety, readability, and maintenance - and to some extent easier UI integration. Independent of solutions for permanent storage.
 
 But at their core meaning, the terms and root concepts are essentially identical. As such, the technology-specific terms are used largely interchangeably in this document.
 
 ### Associative arrays
 
-Bash associative arrays are very efficient. They use a hashtable under the hood, and store key=value pairs mapped to memory locations. It comes with two attributes important to TOOBLIN:
+Bash associative arrays are very efficient. They use a hashtable under the hood, and store key=value pairs mapped to memory locations. It comes with two attributes important to Tooblin:
 
 - For any given array, the key is always, by definition, unique. (In the same meaning that a specific index value is always unique for a given indexed array.)
 
-- Retrieval of a value by key is exceptionally fast, in roughly O(1) time regardless of size. (Inserts get slower as data grows though, but still done in machine code, not script.)
+- Retrieval of a value by key is exceptionally fast, in roughly O(1) constant time regardless of size. (Inserts get slower as data grows though, but still done in machine code, not script.)
 
 ### Index arrays
 
-Regular index arrays are accessed via an integer index, e.g. `myArray[5]="Bob"`. This number is very important in TOOBLIN, and used everywhere under the hood.
+Regular index arrays are accessed via an integer index, e.g. `myArray[5]="Bob"`. This number is very important in Tooblin, and used everywhere under the hood.
 
 They are treated as first-class object variables, in the runtime syntax. (Specifically, row indexes.)
 
 ### UNQ: Unique Constraints - defines logical row and object uniqueness
 
-A "unique constraint" (labeled "`UNQ`" in the code) is/are the attribute[s] that naturally defines a unique record or object, and is the most sacrosanct concept both for RDBMS design, and for TOOBLIN.
+A "unique constraint" (labeled "`UNQ`" in the code) is/are the attribute[s] that naturally defines a unique record or object, and is the most sacrosanct concept both for RDBMS design, and for Tooblin.
 
 In hierarchical data structures, this is rarely one field by itself - but usually at least a parent ID plus a child "Label".
 
@@ -557,7 +567,7 @@ In this design, every "table" (or "class", "entity", or "group of arrays") must 
 
 A `UNQ` is usually a composite index that enforces Label uniqueness when combined with a parent. (E.g. `"${ParentIdx}.${Label}"`.)
 
-## How the TOOBLIN magic is done
+## How the Tooblin magic is done
 
 ### OOP syntax
 
@@ -571,19 +581,19 @@ A `UNQ` is usually a composite index that enforces Label uniqueness when combine
 
 ### Unique constraints and fast lookups
 
-TOOBLIN uses associative arrays to:
+Tooblin uses associative arrays to:
 
 - Enforce unique constraints - quickly and easily, by definition.
 
 - Provide fast key lookups and relationship mapping.
 
-These arrays, in TOOBLIN, usually have the word `UNQ` in them.
+These arrays, in Tooblin, usually have the word `UNQ` in them.
 
 ### Real object variables
 
 In any OOP language, "object" references are just thinly-wrapped pointers or indexes.
 
-To the user of TOOBLIN, an "object variable" is just an integer holding a reference to an array index, which identifies both a class, and an instance of it. But in true OOP-fashion, a thin layer of syntactic sugar lets us fully believe it's a real boy...I mean object variable.
+To the user of Tooblin, an "object variable" is just an integer holding a reference to an array index, which identifies both a class, and an instance of it. But in true OOP-fashion, a thin layer of syntactic sugar lets us fully believe it's a real boy...I mean object variable.
 
 ### OOP syntax sugar goodness
 
@@ -688,7 +698,7 @@ declare -A Ent_LookupUNQ         ## Composite unique key mapped to EntIdx.
 declare -a Ent_RefCount          ## Keeps count of instantiated rows/objects, for garbage collection.
 ~~~
 
-When the TOOBLIN library loads, it automatically creates an "Entity 0", that:
+When the Tooblin library loads, it automatically creates an "Entity 0", that:
 
 - All other entities inherit unless told otherwise, and
 
