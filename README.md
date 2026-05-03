@@ -161,15 +161,17 @@ Bash 4.3, released in 2014 and by now included in all major Linux distros (most 
 1. Associative Arrays
 1. Passing variables to functions by reference.
 
-There are arguably three main reasons for handicapping a Bash-OOP project by targeting a version of Bash that is now (in 2026) 12 years old:
+Bash 4.0, released in 2009, also supported those features, just not as robustly.
 
-1. Some Bash-OOP frameworks were written during, and for, < Bash 4.3. Even if a project has been updated to take advantage of >= 4.3 since then, it may still be stuck with its own older "API", for backward compatibility.
+There are arguably three main reasons for handicapping a Bash-OOP project by targeting a version of Bash that (in 2026) is almost old enough to vote:
+
+1. Some Bash-OOP frameworks were written during, and for, < Bash 4. Even if a project has been updated to take advantage of >= 4 (ideally 4.3) since then, it may still be stuck with its own older "API", for backward compatibility.
 
 	__Counterpoint__: If choosing a Bash-OOP framework now, you can just pick one that requires Bash >= 4.3. All else being equal, it will generally meet the challenge better.
 
 1. Wanting to offer universal macOS Darwin support
 
-	...without making the arguably reasonable ask (for the user's great benefit), to upgrade to >= Bash 4.3.
+	...without making the arguably reasonable ask (for the user's great benefit), to upgrade to >= Bash 4.3. Darwin's native Bash is stuck at v3.2 from 2006 (almost old enough to drink in 2026).
 
 	__Counterpoint__: If a user is savvy enough to be doing Bash scripting complicated enough to warrant a Bash-OOP library (which already involves its own download/installation process), then they are almost certainly capable enough to follow simple online instructions, and run a couple of Zsh commands to install Brew, install Bash 5, and make it the default shell. (As they likely have already done long ago.)
 
@@ -179,7 +181,7 @@ There are arguably three main reasons for handicapping a Bash-OOP project by tar
 
 The only real solution to the "outdated Bash" dilemma, if you want a viable Bash-OOP solution and you're running macOS Darwin or some versions of BSD: __Get GNU Bash 5+__ (released in 2019). Or at least >= 4.3. There's just no way around it for a solid Bash-OOP solution. (This may seem like quaint advice in ten years with Bash v6 or 7.)
 
-If you are running any updated Linux distro, you're almost certainly already good. All major distros default to at least Bash 4.3, most 5+. macOS Darwin's version of Bash is frozen at 3.2.57 due to the change to GPL v3 after that, but can be updated with Brew or MacPorts package managers.
+If you are running any updated Linux distro, you're almost certainly already good. All major distros default to at least Bash 4.3, most 5+. macOS Darwin's version of Bash is frozen at 3.2 due to the change to GPL v3 after that, but can be updated with Brew or MacPorts package managers.
 
 ### In a nutshell - hard requirements for a new Bash-OOP framework
 
