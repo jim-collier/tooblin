@@ -35,6 +35,16 @@
 
 This is a design document. There is not much code yet, other than defined arrays and syntax "definitions by example".
 
+(_And more than a design document, it has also turned into something of a _justification_ for "Bash-OOP" - if only for this author._)
+
+TOOBLIN is a definitionally complete OOP Bash framework, that aims to run as natively as possible (after initial load).
+
+Any OOP programmer should immediately be able to use it with its standard OOP syntactic sugar - both in .class file layout, and runtime syntax.
+
+Also with strict data typing, entity relationships, and the five data normal forms for "free".
+
+While there _is_ as parsing layer for the OOP runtime syntax sugar, there is almost no reliance on subshells or external tools. Furthermore, all of the essential OOP goodness and structural integrity enforcement is also available in parallel as Bash-native function calls. (With the inherent ugliness and parameter opaqueness that you'd naturally expect from an ambitious Bash-native framework.) So if you have a critical section of code that demands minimal code abstraction within, say, a long-running nested loop - then there is a solution for that while still accessing the full OOP features.
+
 <!-- TOC ignore:true -->
 ## Table of contents
 
@@ -42,7 +52,7 @@ This is a design document. There is not much code yet, other than defined arrays
 
 - [Introduction](#introduction)
 - [The problem space](#the-problem-space)
-	- [Finding a better balance between the opposing goals of OOP syntax sugar, and native Bash speed](#finding-a-better-balance-between-the-opposing-goals-of-oop-syntax-sugar-and-native-bash-speed)
+	- [Finding a better balance between the opposing goals of OOP's structural integrity enforcement, syntax sugar - and native Bash speed](#finding-a-better-balance-between-the-opposing-goals-of-oops-structural-integrity-enforcement-syntax-sugar---and-native-bash-speed)
 	- [Targeting support for Bash versions released prior to 2014](#targeting-support-for-bash-versions-released-prior-to-2014)
 	- [In a nutshell - hard requirements for a new Bash-OOP framework](#in-a-nutshell---hard-requirements-for-a-new-bash-oop-framework)
 - [Who is this for, and why?](#who-is-this-for-and-why)
@@ -58,9 +68,10 @@ This is a design document. There is not much code yet, other than defined arrays
 		- [Myth: Bash is slow](#myth-bash-is-slow)
 	- [Bash is already installed everywhere and has no inherent dependencies](#bash-is-already-installed-everywhere-and-has-no-inherent-dependencies)
 	- [Shell scripting is its own specific domain that Bash is well-suited for, but the problems in the domain can nevertheless be complex, and/or rapidly grow in complexity unexpectedly once a project is well underway](#shell-scripting-is-its-own-specific-domain-that-bash-is-well-suited-for-but-the-problems-in-the-domain-can-nevertheless-be-complex-andor-rapidly-grow-in-complexity-unexpectedly-once-a-project-is-well-underway)
+	- [There is currently no obvious superior successor to Bash for most shell scripting use-cases](#there-is-currently-no-obvious-superior-successor-to-bash-for-most-shell-scripting-use-cases)
 - [TOOBLIN goals](#tooblin-goals)
 	- [Present boring, standard OOP syntax sugar that is immediately usable by any OOP programmer](#present-boring-standard-oop-syntax-sugar-that-is-immediately-usable-by-any-oop-programmer)
-	- [Provide strong OOP contracts with definitionally true and 100% complete "OOP"](#provide-strong-oop-contracts-with-definitionally-true-and-100%25-complete-oop)
+	- [Provide strong OOP structural integrity enforcement and definitionally true and 100% complete "OOP"](#provide-strong-oop-structural-integrity-enforcement-and-definitionally-true-and-100%25-complete-oop)
 	- [Support for optional more advanced OOP features](#support-for-optional-more-advanced-oop-features)
 	- [Strongly-typed](#strongly-typed)
 	- [Run as natively and bare-metal as possible](#run-as-natively-and-bare-metal-as-possible)
@@ -112,7 +123,7 @@ This is a design document. There is not much code yet, other than defined arrays
 	- [Function definitions by usage example](#function-definitions-by-usage-example)
 - [The rich existing landscape of Bash-OOP projects](#the-rich-existing-landscape-of-bash-oop-projects)
 	- [Common lightweight approaches](#common-lightweight-approaches)
-	- [Example projects on Github](#example-projects-on-github)
+	- [Other Bash-OOP projects on Github](#other-bash-oop-projects-on-github)
 - [To-do](#to-do)
 - [History](#history)
 
@@ -128,7 +139,7 @@ The section [The rich existing landscape of Bash-OOP projects](#the-rich-existin
 
 This project aims to find a better balance between "syntactic sugar" and "native Bash performance", by borrowing what already works, and incrementally improving on - or occasionally reinventing if all else fails - what doesn't.
 
-It aims to accomplish pure OOP syntax and contractual integrity, with a thinner and faster layer over Bash than the others (and with alternative direct access to 100% Bash that still maintains OOP integrity) - in part by trying to dumb things down to their simplest necessary forms.
+It aims to accomplish pure OOP syntax and structural integrity enforcement, with a thinner and faster layer over Bash than the others (and with alternative direct access to 100% Bash that still maintains OOP integrity) - in part by trying to dumb things down to their simplest necessary forms.
 
 This latest spec iteration adds support for Prototypal Inheritance, direct object inheritance, and creating objects "from nothing" without a class. (When a namespace spec is introduced, it will allow JS-style object creation to be disabled - which if not intentional, can lead to accidental confusing behavior and logic errors for non-JS programmers.)
 
@@ -142,7 +153,7 @@ A fundamental truth about Object-Oriented Programming languages (and all program
 
 The challenge though with a slow, line-by-line interpreted scripting language like Bash, is finding the right balance between the fidelity of the simulation, and performance on present-day hardware.
 
-### Finding a better balance between the opposing goals of OOP syntax sugar, and native Bash speed
+### Finding a better balance between the opposing goals of OOP's structural integrity enforcement, syntax sugar - and native Bash speed
 
 Most Bash-OOP implementations, in this author's estimation, get the balance skewed too far one way or the other. Either favoring:
 
@@ -393,6 +404,20 @@ This is not a matter of nitpicky semantics. Python dependency hell with third-pa
 
 This is really the main point, and reason TOOBLIN exists - or may hopefully someday exist. There's really no effective counter, other than, "Well if the project rapidly grew in complexity unexpectedly, maybe you should have planned better". Except, such a hypothetical response wouldn't be useful or realistic.
 
+### There is currently no obvious superior successor to Bash for most shell scripting use-cases
+
+This may seem like a surprising, if even indefensible assertion. While there are vastly superior alternatives to Bash as a system shell scripting language on some facets (profoundly superior even), all come with tradeoffs that may be indigestible to some or many users and administrators.
+
+The root of the problem may be, ironically, the dire need for a superior alternative to Bash. There may just be such an incredible vacuum, that there are too many outstanding candidates to replace it. And because of that, sadly none have gained enough traction - the critical mass - necessary to topple the crown.
+
+And I'm not even counting newer shells like `zsh` or `fish`. Those are \[arguably\] not nearly enough of a generational leap to justify a complete overhaul and retooling of many user toolkits, let alone Linux itself. (The only reason Apple switched from Bash to Zsh, was because Zsh has a compatible MIT license, whereas Bash is stuck at v3.2, before it switched to the Darwin-incompatible GPLv3.)
+
+More modern successors that _might_ easily justify a compete retooling of user if not large corporate toolkits (such as Powershell, Nushell, Xonsh, or YSH), arguably come with too many tradeoffs. Again, ironically, in part because there's too much competition fighting to replace Bash.
+
+Such cruel irony.
+
+This cornundrum is investigated in more detail, as mentioned before, in this [system shell script language comparison](https://github.com/jim-collier/x9bash5-template/blob/main/shell_script_comparison.md), by this author.
+
 ## TOOBLIN goals
 
 ### Present boring, standard OOP syntax sugar that is immediately usable by any OOP programmer
@@ -405,7 +430,7 @@ But _which_ OOP syntax, you might ask? As most programmers have learned, if you 
 
 The TOOBLIN syntax aims to be as generic OOP as possible, and borrows heavily from C#, Java, and Kotlin.
 
-### Provide strong OOP contracts with definitionally true and 100% complete "OOP"
+### Provide strong OOP structural integrity enforcement and definitionally true and 100% complete "OOP"
 
 This means code-level enforcement of:
 
@@ -542,7 +567,7 @@ A `UNQ` is usually a composite index that enforces Label uniqueness when combine
 
 	But as described in the section above about leaky abstractions, the library can be run with no parsing layer at all, side-by-side with syntax sugar versions. You might choose to do so because, for example, you need the speed in critical code sections such as long-running nested loops.
 
-- Member code is loaded into memory as uniquely named Bash functions, but also run through a very thin and fast native layer. Not just so that syntax sugar can be provided, but also to maintain data consistency and strict OOP contracts even if you skip the extra syntax layer.
+- Member code is loaded into memory as uniquely named Bash functions, but also run through a very thin and fast native layer. Not just so that syntax sugar can be provided, but also to maintain data consistency and strict OOP structural integrity enforcement, even if you skip the extra syntax layer.
 
 ### Unique constraints and fast lookups
 
@@ -564,7 +589,7 @@ To the user of TOOBLIN, an "object variable" is just an integer holding a refere
 
 After initial startup and optional `.class` file loading and parsing (where the most work is done to turn class structures into native Bash), the only time parsing is performed, is to help with OOP syntax sugar.
 
-But this parsing section isn't what guarantees data consistency or OOP contracts - that's all doable with native Bash syntax.
+But this parsing section isn't what guarantees data consistency or OOP structural integrity enforcement - that's all doable with native Bash syntax.
 
 ### Return a resultset from a substring query on a large number of rows, quickly
 
@@ -1063,13 +1088,19 @@ oop myView = nothing
 		}
 		~~~
 
-### Example projects on Github
+### Other Bash-OOP projects on Github
 
 - __[ba.sh](https://github.com/mnorin/ba.sh)__: "...it's not like any other OOP framework for bash you've ever seen. ba.sh is the only bash-native OOP framework with zero dependencies and zero runtime overhead. Technically it may be considered a framework and a design pattern at the same time (Metaprogramming Factory)."
 
 - __[Bash Infinity](https://github.com/niieani/bash-oo-framework)__: "...is a standard library and a boilerplate framework for writing tools using bash. It's modular and lightweight, while managing to implement some concepts from C#, Java or JavaScript into bash. The Infinity Framework is also plug & play: include it at the beginning of your existing script to import any of the individual features such as error handling, and start using other features gradually."
 
+- __[Skull](https://github.com/tomas/skull)__: "Skull is a Bash framework that provides an object-oriented-like interface for writing shell scripts or working on the terminal. Skull is written purely in Bash and doesn't have any special requirements. Just drop, include and use."
+
 - __[Object.sh](https://github.com/bgeschka/objectsh/blob/master/README.md)__: "PoC for Posix shell scripts with objects in ~66 lines. Objects with member functions; Prototypal multi-inheritance; $this, properly reflected on member functions/base classes; getters are deep, setters are shallow"
+
+- __[OOP in Bash script](https://gist.github.com/leandronsp/5e7c94ee5b4ea53ed28e9824ca8e243e)__: "Simulation of OOP in Bash"
+
+- __[Oobash](https://github.com/relsqui/oobash)__: "An object-oriented programming library for bash. Sourcing oobash.sh allows you to define objects in bash scripts which have properties, methods, and inheritance. They're less like Java classes and more like Lua tables, in that there's no class/object distinction; each object just has a parent, to which it will look for methods and properties not defined on it."
 
 ## To-do
 
