@@ -58,17 +58,17 @@ While there _is_ as parsing layer for the OOP runtime syntax sugar, there is alm
 - [Who is this for, and why?](#who-is-this-for-and-why)
 - [Who this isn't for](#who-this-isnt-for)
 - [But no really...Why?](#but-no-reallywhy)
-	- [Myths and realities of Bash](#myths-and-realities-of-bash)
-		- [Myth: Bash is inappropriate for large tasks](#myth-bash-is-inappropriate-for-large-tasks)
-		- [Myth: Bash can't be broken up into multi-person project files](#myth-bash-cant-be-broken-up-into-multi-person-project-files)
-		- [Myth: Bash and Sh scripts are the same](#myth-bash-and-sh-scripts-are-the-same)
-		- [Myth: Bash syntax is obtuse and arcane](#myth-bash-syntax-is-obtuse-and-arcane)
-		- [Myth: Bash has no advanced editor support, linting, profiling, or live debugging](#myth-bash-has-no-advanced-editor-support-linting-profiling-or-live-debugging)
-		- [Myth: There are no testing frameworks for Bash](#myth-there-are-no-testing-frameworks-for-bash)
-		- [Myth: Bash is slow](#myth-bash-is-slow)
 	- [Bash is already installed everywhere and has no inherent dependencies](#bash-is-already-installed-everywhere-and-has-no-inherent-dependencies)
 	- [Shell scripting is its own specific domain that Bash is well-suited for, but the problems in the domain can still be complex, and/or rapidly grow in complexity unexpectedly once a project is well underway](#shell-scripting-is-its-own-specific-domain-that-bash-is-well-suited-for-but-the-problems-in-the-domain-can-still-be-complex-andor-rapidly-grow-in-complexity-unexpectedly-once-a-project-is-well-underway)
 	- [There is currently no obvious superior successor to Bash for most shell scripting use-cases](#there-is-currently-no-obvious-superior-successor-to-bash-for-most-shell-scripting-use-cases)
+- [Myths and realities of Bash](#myths-and-realities-of-bash)
+	- [Myth: Bash is inappropriate for large tasks](#myth-bash-is-inappropriate-for-large-tasks)
+	- [Myth: Bash can't be broken up into multi-person project files](#myth-bash-cant-be-broken-up-into-multi-person-project-files)
+	- [Myth: Bash and Sh scripts are the same](#myth-bash-and-sh-scripts-are-the-same)
+	- [Myth: Bash syntax is obtuse and arcane](#myth-bash-syntax-is-obtuse-and-arcane)
+	- [Myth: Bash has no advanced editor support, linting, profiling, or live debugging](#myth-bash-has-no-advanced-editor-support-linting-profiling-or-live-debugging)
+	- [Myth: There are no testing frameworks for Bash](#myth-there-are-no-testing-frameworks-for-bash)
+	- [Myth: Bash is slow](#myth-bash-is-slow)
 - [Tooblin goals](#tooblin-goals)
 	- [Present boring, standard OOP syntax sugar that is immediately usable by any OOP programmer](#present-boring-standard-oop-syntax-sugar-that-is-immediately-usable-by-any-oop-programmer)
 	- [Provide strong OOP structural integrity enforcement and definitionally true and 100% complete "OOP"](#provide-strong-oop-structural-integrity-enforcement-and-definitionally-true-and-100%25-complete-oop)
@@ -262,7 +262,37 @@ Fair point.
 
 OK first let's get this out of the way...
 
-### Myths and realities of Bash
+### Bash is already installed everywhere and has no inherent dependencies
+
+Even on Windows with WSL, though not by default. (And not a usable version by default on macOS.)
+
+And unlike Python and other scripted languages (even Powershell), it doesn't involve _Dependency Hell_.
+
+There may be a minimum Bash version requirement, which can be checked for at runtime. But that's not _Dependency Hell_.
+
+There may be incompatible CLI programs on the system that any shell scripting language depends on - but that's still not Python-style _Dependency Hell_. The minimum required versions (and/or existence of) external programs can also be checked at runtime, with explicit, easy-to-follow recommendations given on how to solve each one.
+
+This is not a matter of nitpicky semantics. Python dependency hell with third-party packages is a well-documented disaster: `pip` vs `poetry` vs `pipenv` vs `conda` vs `uv` vs `hatch`, transitive conflicts, native-extension build failures, PEP 668's externally-managed-environment errors on modern Linux, virtualenv lifecycle management, lockfile drift, etc. These are the bane of the Python user's existence. (For daily Python developers on a day-to-day basis not so much - as they have it all sorted out, until the next version or package update.)
+
+### Shell scripting is its own specific domain that Bash is well-suited for, but the problems in the domain can still be complex, and/or rapidly grow in complexity unexpectedly once a project is well underway
+
+This is really the main point, and reason Tooblin exists - or may hopefully someday exist. There's really no effective counter, other than, "Well if the project rapidly grew in complexity unexpectedly, maybe you should have planned better". Except, such a hypothetical response wouldn't be useful or realistic.
+
+### There is currently no obvious superior successor to Bash for most shell scripting use-cases
+
+This may seem like a surprising, if even indefensible assertion. While there are several _profoundly_ superior alternatives to Bash as a system shell scripting language on some facets, all come with tradeoffs that may be unacceptable to some users, administrators, and/or organizations.
+
+The root of the problem may be, ironically, the dire need for a superior alternative to Bash. There may just be such an incredible vacuum, that there are too many outstanding candidates to replace it. And because of that, sadly none have gained enough traction - the critical mass - necessary to topple the crown.
+
+And I'm not even counting newer shells like `zsh` or `fish`. Those are (arguably) not nearly enough of a generational leap to justify a complete overhaul and retooling of utility stacks, let alone Linux itself. The only reason Apple switched from Bash to Zsh, wasn't because Zsh is vastly superior. (It's arguably "incrementally better".) It was due to its compatible MIT license, whereas Bash on Darwin is frozen at v3.2, before it switched to the Darwin-incompatible GPLv3 license with Linux.)
+
+More modern, superior successors to Bash that _might_ easily justify a compete retooling - such as Powershell, Nushell, Xonsh, or YSH - arguably come with too many tradeoffs, and/or too little mindshare.
+
+Such cruel irony.
+
+This conundrum is investigated in more detail, as mentioned before, in this [system shell script language comparison](https://github.com/jim-collier/x9bash5-template/blob/main/shell_script_comparison.md), by this author.
+
+## Myths and realities of Bash
 
 [This blog post](https://medium.com/capital-one-tech/bashing-the-bash-replacing-shell-scripts-with-python-d8d201bc0989) by a Python book author and influencer, attempts to demonstrate that scripting system tasks in Python is superior than doing the same thing in Bash.
 
@@ -280,7 +310,7 @@ The point is not to prove some random nine year-old opinion blog article "wrong"
 
 As crimes against humanity go - its pretty low on the list. Probably even forgivable without punishment, retribution, or possibly even forced reparations.
 
-#### Myth: Bash is inappropriate for large tasks
+### Myth: Bash is inappropriate for large tasks
 
 Aka "After 100 lines of script, just switch to Python."
 
@@ -306,7 +336,7 @@ Aka "After 100 lines of script, just switch to Python."
 
 	Either way, once any myth like this spreads, and gets echoed by well-regarded experts - it grows durable and persistent roots, with constant reinforcement via Selection Bias of sloppy, poorly-written scripts.
 
-#### Myth: Bash can't be broken up into multi-person project files
+### Myth: Bash can't be broken up into multi-person project files
 
 - __Reality__: The previous point objectively disproves this.
 
@@ -316,9 +346,9 @@ Aka "After 100 lines of script, just switch to Python."
 
 	The challenge - as always across time and space for any software project - is how to best chop a project up for optimal "asynchronous" development. That's the tech lead's job.
 
-#### Myth: Bash and Sh scripts are the same
+### Myth: Bash and Sh scripts are the same
 
-- __Reality__: They don't _have_ to be remotely similar. A reasonably apt metaphor is:
+- __Reality__: They don't _have_ to be even similar. A reasonably apt metaphor is:
 
 	_Bash is to Sh, like C++ is to C._
 
@@ -328,7 +358,7 @@ Aka "After 100 lines of script, just switch to Python."
 
 - __Why__ the myth: When casual users think of a "Bash script", they are undoubtedly used to seeing arcane, crusty, crude syntax written by non-programmers - who themselves mistakenly believed that Bash shell commands have to be POSIX-compliant from 1992. (Or more likely, that's just the syntax they learned.) And certainly weren't using more advanced features and syntax of Bash >= 4.3.
 
-#### Myth: Bash syntax is obtuse and arcane
+### Myth: Bash syntax is obtuse and arcane
 
 - __Reality__: This is arguably the most subjective measure in this list. And is tough to debunk because it's too often true, even in online tutorials.
 
@@ -348,7 +378,7 @@ Aka "After 100 lines of script, just switch to Python."
 
 	It _can_ be obtuse and arcane, and too often is. But it doesn't have to be, and "shouldn't" be.
 
-#### Myth: Bash has no advanced editor support, linting, profiling, or live debugging
+### Myth: Bash has no advanced editor support, linting, profiling, or live debugging
 
 - __Reality__: All untrue.
 
@@ -360,11 +390,11 @@ Aka "After 100 lines of script, just switch to Python."
 
 - __Why__ the myth: It used to be true, comparatively speaking. But things change.
 
-#### Myth: There are no testing frameworks for Bash
+### Myth: There are no testing frameworks for Bash
 
 - __Reality__: [Bats](https://github.com/bats-core/bats-core) is a sophisticated TAP-compliant Bash script testing framework. There are several others.
 
-#### Myth: Bash is slow
+### Myth: Bash is slow
 
 - __Reality__: "It's complicated".
 
@@ -413,36 +443,6 @@ Aka "After 100 lines of script, just switch to Python."
 	And in spite of being a veteran programmer, I too have written dozens if not _hundreds_ of truly hideous, non-idiomatic Bash script. Some of which lingers as legacy boilerplate to this day in new work - because it "just works", and it's not a high enough priority to invest the time to refactor. "Bad Bash" seems to be a self-reinforcing problem, as online guides teach poor practices and habits, which lead to bad scripts, and bad online guides.
 
 	I am doing my small part to try to right that problem, with the still early-stage [Bash 5 Ultimate Guide](https://github.com/jim-collier/bash-5-ultimate-guide/blob/main/bash-5-ultimate-guide.md).
-
-### Bash is already installed everywhere and has no inherent dependencies
-
-Even on Windows with WSL, though not by default. (And not a usable version by default on macOS.)
-
-And unlike Python and other scripted languages (even Powershell), it doesn't involve _Dependency Hell_.
-
-There may be a minimum Bash version requirement, which can be checked for at runtime. But that's not _Dependency Hell_.
-
-There may be incompatible CLI programs on the system that any shell scripting language depends on - but that's still not Python-style _Dependency Hell_. The minimum required versions (and/or existence of) external programs can also be checked at runtime, with explicit, easy-to-follow recommendations given on how to solve each one.
-
-This is not a matter of nitpicky semantics. Python dependency hell with third-party packages is a well-documented disaster: `pip` vs `poetry` vs `pipenv` vs `conda` vs `uv` vs `hatch`, transitive conflicts, native-extension build failures, PEP 668's externally-managed-environment errors on modern Linux, virtualenv lifecycle management, lockfile drift, etc. These are the bane of the Python user's existence. (For daily Python developers on a day-to-day basis not so much - as they have it all sorted out, until the next version or package update.)
-
-### Shell scripting is its own specific domain that Bash is well-suited for, but the problems in the domain can still be complex, and/or rapidly grow in complexity unexpectedly once a project is well underway
-
-This is really the main point, and reason Tooblin exists - or may hopefully someday exist. There's really no effective counter, other than, "Well if the project rapidly grew in complexity unexpectedly, maybe you should have planned better". Except, such a hypothetical response wouldn't be useful or realistic.
-
-### There is currently no obvious superior successor to Bash for most shell scripting use-cases
-
-This may seem like a surprising, if even indefensible assertion. While there are several _profoundly_ superior alternatives to Bash as a system shell scripting language on some facets, all come with tradeoffs that may be unacceptable to some users, administrators, and/or organizations.
-
-The root of the problem may be, ironically, the dire need for a superior alternative to Bash. There may just be such an incredible vacuum, that there are too many outstanding candidates to replace it. And because of that, sadly none have gained enough traction - the critical mass - necessary to topple the crown.
-
-And I'm not even counting newer shells like `zsh` or `fish`. Those are (arguably) not nearly enough of a generational leap to justify a complete overhaul and retooling of utility stacks, let alone Linux itself. The only reason Apple switched from Bash to Zsh, wasn't because Zsh is vastly superior. (It's arguably "incrementally better".) It was due to its compatible MIT license, whereas Bash on Darwin is frozen at v3.2, before it switched to the Darwin-incompatible GPLv3 license with Linux.)
-
-More modern, superior successors to Bash that _might_ easily justify a compete retooling - such as Powershell, Nushell, Xonsh, or YSH - arguably come with too many tradeoffs, and/or too little mindshare.
-
-Such cruel irony.
-
-This conundrum is investigated in more detail, as mentioned before, in this [system shell script language comparison](https://github.com/jim-collier/x9bash5-template/blob/main/shell_script_comparison.md), by this author.
 
 ## Tooblin goals
 
