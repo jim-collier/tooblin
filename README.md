@@ -37,13 +37,15 @@ This is a design document. There is not much code yet, other than defined arrays
 
 (_And more than a design document, it has also turned into something of a _justification_ for "Bash-OOP" - if only for this author._)
 
-Tooblin is a definitionally complete OOP Bash framework, that aims to run as natively as possible (after initial load).
+<table style="border: none; border-collapse: collapse;">
+	<tr style="border: none; border-collapse: collapse;">
+		<td style="border: none; border-collapse: collapse;"><img src="https://github.com/jim-collier/tooblin/blob/main/assets/mascot3-1.png?raw=true" alt="Tooblin" width="320"/></td>
+		<td style="border: none;"><p>Tooblin is a definitionally complete OOP Bash framework, that aims to run as natively as possible (after initial load).</p><p>Any OOP programmer should feel immediately at home, and be able to use it with its standard OOP syntactic sugar - both in .class file layout, and runtime syntax, without having to get up to speed on setup or syntax.</p><p>It also provides strict data typing, entity relationships, and the five data normal forms along the way, for "free".</p>
+		</td>
+	</tr style="border: none; border-collapse: collapse;">
+</table>
 
-Any OOP programmer should feel immediately at home, and be able to use it with its standard OOP syntactic sugar - both in .class file layout, and runtime syntax, without having to get up to speed on setup or syntax.
-
-It also provides strict data typing, entity relationships, and the five data normal forms along the way, for "free".
-
-While there _is_ as parsing layer for the OOP runtime syntax sugar, there is almost no reliance on subshells or external tools. Furthermore, all of the essential OOP goodness and structural integrity enforcement is also available in parallel as Bash-native function calls. (With the inherent ugliness and parameter opaqueness that you'd naturally expect from an ambitious Bash-native framework.) So if you have a critical section of code that demands direct function access in, say, a long-running nested loop - then there is a solution for that.
+While there _is_ as parsing layer for the OOP runtime syntax sugar, there is almost no reliance on forks, pipes, subshells, or external tools in hot paths. Furthermore, all of the essential OOP goodness and structural integrity enforcement is also available in parallel as Bash-native function calls. (With the inherent ugliness and parameter opaqueness that you'd naturally expect from an ambitious Bash-native framework.) So if you have a critical section of code that demands direct function access in, say, a long-running nested loop - then there is a solution for that.
 
 <!-- TOC ignore:true -->
 ## Table of contents
