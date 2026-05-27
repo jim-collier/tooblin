@@ -365,7 +365,6 @@ Aka "After 100 lines of script, just switch to Python."
 	- C-style arithmetic: `((x = a + b * c))`, `((x++))`, `((x += 5))`
 	- C-style loops: `for ((i=0; i<n; i++)); do ... done`
 	- Conditionals inside `((...))` and `[[...]]` use C operators, e.g. (`==`, `!=`, `<`, `&&`, `||`)
-	- Inline ternary operations like `{ ((isFlagSet)) && fMyFunction "something"; } || printf "Bite me."`
 	- Pointer-ish indirection via `${!var}` and/or `local -n nameref`
 	- Locally-scoped variables
 	- Integer variables, indexed arrays, and super-efficient associative (hashmap) arrays
@@ -396,9 +395,9 @@ Aka "After 100 lines of script, just switch to Python."
 
 - __Reality__: "It's complicated".
 
-	- __Yes__, it's objectively slow as a pure language. It's interpreted. No just-in-time compiler. Lines are executed one ...line ...at ...a ...time. (Although many structures are actually highly optimized in compiled machine code.)
+	- __Yes__, it's objectively slow as a pure language. It's interpreted. It has no Just-In-Time compiler. Lines are executed one ...line ...at ...a ...time. (Although many structures are actually highly optimized in compiled machine code.)
 
-	- __No__, typical Bash shell scripts are not "slow" taken as a whole, in fact the whole point of any shell scripting language is to _orchestrate other programs_. An random example being, processing massive amounts of filesystem data by subshelling out to `find | parallel :: awk`. (See also `grep`, `sed`, `sort`, etc.) These tools have been fine-tuned over decades to chew through massive filesystem and data tasks like hot butter.
+	- __No__, typical Bash shell scripts are not "slow" taken as a whole, in fact the whole point of any shell scripting language is to _orchestrate other programs_. A random example being, processing massive amounts of filesystem data by subshelling out to `find | parallel :: awk`. (See also `grep`, `sed`, `sort`, etc.) These tools have been fine-tuned over decades to chew through massive filesystem and data tasks like hot butter.
 
 		- As long as process spawning is only done for big complex tasks, and not for trivial non-idiomatic commands buried in some nested loop - e.g. relying on `grep` for basic validation - any shell scripting language can shine.
 
