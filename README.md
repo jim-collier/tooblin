@@ -39,7 +39,7 @@ This is a design document. There is not much code yet, other than defined arrays
 
 <table style="border: none; border-collapse: collapse;">
 	<tr style="border: none; border-collapse: collapse;">
-		<td style="border: none; border-collapse: collapse;"><img src="https://github.com/jim-collier/tooblin/blob/main/assets/mascot3-1.png?raw=true" alt="Tooblin" width="320"/></td>
+		<td style="border: none; border-collapse: collapse;"><img src="https://github.com/jim-collier/tooblin/blob/main/assets/logo.png?raw=true" alt="Tooblin" width="320"/></td>
 		<td style="border: none;"><p>Tooblin is a definitionally complete OOP Bash framework, that aims to run as natively as possible (after initial load).</p><p>Any OOP programmer should feel immediately at home, and be able to use it with its standard OOP syntactic sugar - both in .class file layout, and runtime syntax, without having to get up to speed on setup or syntax.</p><p>It also provides strict data typing, entity relationships, and the five data normal forms along the way, for "free".</p>
 		</td>
 	</tr style="border: none; border-collapse: collapse;">
