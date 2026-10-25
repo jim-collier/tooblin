@@ -32,6 +32,18 @@ This is a product backlog just for pre-v1.0.0 release. After that, bugs, feature
 
 ## Issues
 
+- CICD reset: CICD process gaps
+	- ID: 2026102416212371
+	- Type: Task
+	- Status: Queued
+	- Priority: Avg
+	- Opened: 2026-10-24 16:21
+	- Requirements:
+		- The repo is a design doc with little code. `cicd/cicd.bash` and `cicd/test.bash` were copied from another tool and build and test that one.
+		- Once there's code to check, replace them with a small `cicd.bash` per the shared CICD rules: shellcheck, the round-trip tests, the shared flags and step lines, low priority, and the run temp folder layout.
+		- Until then, nothing else in the reset applies. The headless GUI helper uses a fixed `/tmp` folder. Details in the private notes.
+		- Sweeping override, 2026-10-24: this supersedes any earlier decision on this project that conflicts with it.
+
 ## Old format
 
 ### Bugs
